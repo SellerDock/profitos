@@ -5,22 +5,22 @@ import { productName } from '../config/brand'
 const questions = () => [
   {
     question: `Skąd mam wiedzieć, że ${productName()} naprawdę używa tego kodu z GitHuba?`,
-    answer: 'Kliknij „Sprawdź teraz”. Przeglądarka pobierze plik używany przez panel, policzy jego odcisk i porówna go z publiczną wersją na GitHubie. Jeśli plik byłby inny, wynik się nie zgodzi.',
+    answer: 'Kliknij „Sprawdź teraz”. Przeglądarka obliczy skrót pliku i porówna go z oczekiwanym skrótem z endpointu crypto-proof tego serwera. Aby sprawdzić go niezależnie, porównaj skrót z zaufanym wydaniem na GitHubie SellerDock/profitos-crypto.',
     badge: 'Wyjaśnienie',
   },
   {
     question: 'Co jeśli ktoś przejmie wasz serwer i podmieni kod?',
-    answer: 'Dlatego pokazujemy publiczne odciski plików i dajemy narzędzie offline. To nie jest magiczna tarcza przed każdym atakiem, ale pozwala sprawdzić, czy plik szyfrujący zgadza się z publiczną wersją.',
+    answer: 'Serwer może podmienić zarówno kod, jak i oczekiwany skrót. Porównaj skrót z zaufanym wydaniem SellerDock/profitos-crypto na GitHubie i skorzystaj z narzędzia offline.',
     badge: 'Wyjaśnienie',
   },
   {
     question: 'Co się stanie jeśli zapomnę hasła sejfu finansowego?',
-    answer: 'Nie będziemy mogli odzyskać kosztów zakupu. Nie znamy hasła sejfu i nie mamy klucza zapasowego. Najbezpieczniej zapisać hasło w menedżerze haseł.',
+    answer: 'Nie będziemy mogli odzyskać kosztów zakupu. Nie mamy klucza zapasowego. Najbezpieczniej zapisać hasło w menedżerze haseł.',
     badge: 'Ważne',
   },
   {
     question: 'Czy macie gdzieś moje koszty w jawnej formie?',
-    answer: 'Nie. W bazie zapisujemy zaszyfrowane dane, a nie kwoty zakupu. Możesz pobrać pojedynczy rekord i odszyfrować go lokalnie, żeby zobaczyć, że jawna kwota pojawia się dopiero po podaniu hasła sejfu.',
+    answer: 'Standardowo w bazie zapisujemy zaszyfrowane dane, a nie kwoty zakupu. Opcjonalna integracja serwerowa jest domyślnie wyłączona; po jej włączeniu przez administratora klient może podać kod sejfu, a serwer odszyfruje koszty podczas obsługi żądania. Możesz pobrać pojedynczy rekord i odszyfrować go lokalnie, żeby zobaczyć, że jawna kwota pojawia się dopiero po podaniu hasła sejfu.',
     badge: 'Oświadczenie',
   },
   {
@@ -30,17 +30,17 @@ const questions = () => [
   },
   {
     question: 'Czy mogę zmienić hasło sejfu finansowego?',
-    answer: 'Tak. Przy zmianie hasła koszty są ponownie szyfrowane nowym kluczem w Twojej przeglądarce. Stare hasło przestaje działać, a my w żadnym momencie nie widzimy ani starego, ani nowego hasła.',
+    answer: 'Obecnie zmiana hasła sejfu nie jest obsługiwana. Zachowaj hasło w bezpiecznym miejscu.',
     badge: 'Wyjaśnienie',
   },
   {
     question: 'Czy moje koszty są zaszyfrowane też w kopiach zapasowych bazy?',
-    answer: 'Tak. W bazie — a więc również w jej kopiach zapasowych — trzymamy wyłącznie zaszyfrowaną treść kosztów. Kopia zapasowa nie zawiera jawnych kwot ani klucza potrzebnego do ich odczytania.',
+    answer: 'Tak. W bazie – a więc również w jej kopiach zapasowych – trzymamy wyłącznie zaszyfrowaną treść kosztów. Kopia zapasowa nie zawiera jawnych kwot ani klucza potrzebnego do ich odczytania.',
     badge: 'Oświadczenie',
   },
   {
     question: 'Na czym polega narzędzie offline?',
-    answer: 'To pojedynczy plik HTML z publicznym odciskiem, który uruchamiasz na własnym komputerze bez połączenia z panelem. Wklejasz do niego zaszyfrowany rekord i swoje hasło, a odszyfrowanie następuje lokalnie — dzięki temu możesz potwierdzić, że jawna kwota pojawia się dopiero po podaniu hasła.',
+    answer: 'To pojedynczy plik HTML z publicznym odciskiem, który uruchamiasz na własnym komputerze bez połączenia z panelem. Wklejasz do niego zaszyfrowany rekord i swoje hasło, a odszyfrowanie następuje lokalnie – dzięki temu możesz potwierdzić, że jawna kwota pojawia się dopiero po podaniu hasła.',
     badge: 'Wyjaśnienie',
   },
   {

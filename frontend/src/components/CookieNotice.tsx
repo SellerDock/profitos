@@ -9,7 +9,7 @@ export function CookieNotice() {
   const { theme } = useTheme()
   const mode = useDeploymentMode()
   const { analytics } = useAppConfig()
-  const usesAnalytics = Boolean(analytics?.ga_id || analytics?.ahrefs_key)
+  const usesAnalytics = Boolean(analytics?.ga_id || analytics?.ahrefs_key || analytics?.ads_conversion)
   const isDark = theme === 'dark'
   const [visible, setVisible] = useState(false)
 

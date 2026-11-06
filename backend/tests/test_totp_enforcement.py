@@ -105,7 +105,9 @@ def test_operator_login_with_wrong_totp_returns_401(app_client, totp_users):
 
 
 @pytest.mark.contract
-def test_operator_login_with_correct_totp_returns_ok(app_client, totp_users):
+def test_operator_login_with_correct_totp_returns_ok(app_client, totp_users, monkeypatch):
+    from app.core.config import settings
+    monkeypatch.setattr(settings, "DEPLOYMENT_MODE", "selfhosted")
     user = totp_users["operator_totp"]
     code = pyotp.TOTP(user.totp_secret).now()
     response = app_client.post(

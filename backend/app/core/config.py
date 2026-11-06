@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     PUBLIC_APP_URL: str | None = None
     ANALYTICS_GA_ID: str | None = None
     ANALYTICS_AHREFS_KEY: str | None = None
+    ANALYTICS_ADS_CONVERSION: str | None = None
 
     @field_validator("PUBLIC_SITE_URL", "PUBLIC_APP_URL")
     @classmethod
@@ -21,10 +22,10 @@ class Settings(BaseSettings):
             raise ValueError("Public URL must start with http:// or https://")
         return value
 
-    @field_validator("ANALYTICS_GA_ID", "ANALYTICS_AHREFS_KEY")
+    @field_validator("ANALYTICS_GA_ID", "ANALYTICS_AHREFS_KEY", "ANALYTICS_ADS_CONVERSION")
     @classmethod
     def validate_analytics(cls, value: str | None, info) -> str | None:
-        pattern = r"G-[A-Z0-9]+" if info.field_name == "ANALYTICS_GA_ID" else r"[A-Za-z0-9_-]+"
+        pattern = {"ANALYTICS_GA_ID": r"G-[A-Z0-9]+", "ANALYTICS_AHREFS_KEY": r"[A-Za-z0-9_-]+", "ANALYTICS_ADS_CONVERSION": r"AW-[0-9]+/[A-Za-z0-9_-]+"}[info.field_name]
         if value is not None and not re.fullmatch(pattern, value):
             raise ValueError("Invalid analytics identifier")
         return value
@@ -32,6 +33,15 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DATABASE_URL: str
     SECRET_KEY: str
+
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def validate_secret_key(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if len(value.strip()) < 32 or normalized.startswith(("change-me", "changeme", "secret")):
+            raise ValueError("SECRET_KEY musi mieć co najmniej 32 znaki i nie może być wartością przykładową. Wygeneruj klucz: openssl rand -hex 32")
+        return value
+
     ALLEGRO_REDIRECT_URI: str
     ALLEGRO_USER_AGENT: str | None = None
     ALLEGRO_CLIENT_ID: str | None = None

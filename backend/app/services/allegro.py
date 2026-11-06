@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 import httpx
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
+from app.core.config import is_hosted, settings
 from app.models.account import Account, AllegroAccountClaim
 
 logger = logging.getLogger("apos.allegro")
@@ -105,7 +105,7 @@ class AllegroService:
             self.db.query(AllegroAccountClaim)
             .filter(AllegroAccountClaim.allegro_user_id == allegro_user_id)
             .first()
-        )
+        ) if is_hosted() else None
         if claim and (account is None or claim.account_id != account.id):
             raise ValueError(
                 "To konto Allegro było już wcześniej dodane do ProfitOS. "
@@ -135,14 +135,14 @@ class AllegroService:
             existing.allegro_user_id = allegro_user_id
 
         saved = self._save_tokens(existing, token_data, commit=False)
-        if claim is None:
+        if is_hosted() and claim is None:
             self.db.add(AllegroAccountClaim(
                 allegro_user_id=allegro_user_id,
                 tenant_id=tenant_id,
                 account_id=saved.id,
                 account_name=saved.name,
             ))
-        else:
+        elif claim is not None:
             claim.tenant_id = tenant_id
             claim.account_id = saved.id
             claim.account_name = saved.name

@@ -42,7 +42,8 @@ logger = logging.getLogger("app.security")
 
 SESSION_COOKIE = "apos_session"
 REFRESH_COOKIE = "apos_refresh"
-REFRESH_COOKIE_PATH = "/api/v1/auth/refresh"
+REFRESH_COOKIE_PATH = "/api/v1/auth"
+LEGACY_REFRESH_COOKIE_PATH = "/api/v1/auth/refresh"
 ENROLL_COOKIE = "apos_totp_enroll"
 ENROLL_TTL = timedelta(minutes=5)
 _DUMMY_HASH: str | None = None
@@ -353,6 +354,7 @@ def _set_session_cookie(response: Response, token: str) -> None:
 
 
 def _set_refresh_cookie(response: Response, token: str) -> None:
+    response.delete_cookie(REFRESH_COOKIE, path=LEGACY_REFRESH_COOKIE_PATH, secure=settings.session_cookie_secure, samesite="strict")
     response.set_cookie(
         REFRESH_COOKIE,
         token,
@@ -365,6 +367,7 @@ def _set_refresh_cookie(response: Response, token: str) -> None:
 
 
 def _clear_refresh_cookie(response: Response) -> None:
+    response.delete_cookie(REFRESH_COOKIE, path=LEGACY_REFRESH_COOKIE_PATH, secure=settings.session_cookie_secure, samesite="strict")
     response.delete_cookie(
         REFRESH_COOKIE,
         path=REFRESH_COOKIE_PATH,
@@ -513,6 +516,7 @@ def login(data: LoginRequest, request: Request, response: Response, db: Session 
         "user": {
             "email": user.email,
             "is_operator": user.is_operator,
+            "id": user.id,
             "tenant_id": user.tenant_id,
             "totp_enrolled": bool(user.totp_secret),
         },
@@ -558,6 +562,7 @@ def refresh(
         "user": {
             "email": user.email,
             "is_operator": user.is_operator,
+            "id": user.id,
             "tenant_id": user.tenant_id,
             "totp_enrolled": bool(user.totp_secret),
         },
@@ -593,6 +598,7 @@ def enroll_totp(
         "user": {
             "email": user.email,
             "is_operator": user.is_operator,
+            "id": user.id,
             "tenant_id": user.tenant_id,
             "totp_enrolled": bool(user.totp_secret),
         },
@@ -658,37 +664,31 @@ def disable_totp(
     return {"status": "ok"}
 
 
-@router.post("/logout", status_code=204)
-def logout(response: Response, apos_session: str | None = Cookie(default=None), db: Session = Depends(get_db)):
+def _logout_device(response: Response, apos_session: str | None, raw_token: str | None, db: Session) -> None:
     if apos_session:
         session = db.get(UserSession, apos_session)
         if session and session.revoked_at is None:
             session.revoked_at = _now()
             db.commit()
             logger.info("auth session_revoked user_id=%s", session.user_id)
+    if raw_token:
+        device_session = find_device_session_by_token(db, raw_token)
+        if device_session is not None:
+            revoke_family(db, device_session.family_id, reason="logout")
     _clear_cookie(response, SESSION_COOKIE)
+    _clear_refresh_cookie(response)
 
 
+@router.post("/logout", status_code=204)
 @router.post("/device/logout", status_code=204)
-def device_logout(
+def logout(
     response: Response,
     apos_session: str | None = Cookie(default=None),
     apos_refresh: str | None = Cookie(default=None),
+    x_refresh_token: str | None = Header(default=None, alias="X-Refresh-Token"),
     db: Session = Depends(get_db),
 ):
-    if apos_session:
-        session = db.get(UserSession, apos_session)
-        if session and session.revoked_at is None:
-            session.revoked_at = _now()
-            db.commit()
-            logger.info("auth session_revoked user_id=%s", session.user_id)
-    if apos_refresh:
-        device_session = find_device_session_by_token(db, apos_refresh)
-        if device_session is not None:
-            revoke_family(db, device_session.family_id, reason="logout")
-            logger.info("auth device_session_revoked user_id=%s reason=logout", device_session.user_id)
-    _clear_cookie(response, SESSION_COOKIE)
-    _clear_refresh_cookie(response)
+    _logout_device(response, apos_session, apos_refresh or x_refresh_token, db)
 
 
 @router.get("/devices")
@@ -744,6 +744,7 @@ def me(user: User = Depends(get_current_user)):
     return {
         "email": user.email,
         "is_operator": user.is_operator,
+        "id": user.id,
         "tenant_id": user.tenant_id,
         "totp_enrolled": bool(user.totp_secret),
     }

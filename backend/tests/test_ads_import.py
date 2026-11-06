@@ -500,3 +500,16 @@ def test_dashboard_falls_back_to_nsp_when_no_imports(db: Session):
     summary = DashboardEngine(operator_scope(db)).summary(period, account_id=account_id)
 
     assert summary.ads_cost_source == "billing", f"Expected 'billing', got '{summary.ads_cost_source}'"
+
+
+def test_upload_rejects_file_over_limit():
+    from types import SimpleNamespace
+    from unittest.mock import MagicMock
+    from fastapi import HTTPException, UploadFile
+    from app.api.ads_import import upload_ads_import
+    scope = SimpleNamespace(db=MagicMock(), assert_owns=MagicMock())
+    scope.db.get.return_value = SimpleNamespace(access_token="token")
+    upload = UploadFile(file=io.BytesIO(b"x" * (10 * 1024 * 1024 + 1)), filename="ads.csv")
+    with pytest.raises(HTTPException) as error:
+        upload_ads_import(1, upload, scope)
+    assert error.value.status_code == 413

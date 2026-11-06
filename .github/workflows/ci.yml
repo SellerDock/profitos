@@ -30,7 +30,7 @@ jobs:
       APOS_TEST_DB: '1'
       POSTGRES_USER: apos_user
       POSTGRES_PASSWORD: apos_pass
-      SECRET_KEY: ci
+      SECRET_KEY: ci-test-key-0123456789abcdef0123456789abcdef
       APP_BASE_URL: http://localhost:3001
       ALLEGRO_REDIRECT_URI: http://localhost:3001/api/v1/accounts/allegro/callback
       DATABASE_URL: postgresql://apos_user:apos_pass@localhost:5432/apos_test

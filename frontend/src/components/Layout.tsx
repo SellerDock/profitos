@@ -489,7 +489,7 @@ function FinancialVaultPanel({ mobile = false, onDone }: { mobile?: boolean; onD
 
   const explainer = vault.unlocked
     ? 'Sejf jest odblokowany w tej sesji. Koszty zakupu mogą być odszyfrowane i użyte w marży.'
-    : 'Odblokuj Sejf, żeby importować i widzieć koszty zakupu. Hasło zostaje w przeglądarce, serwer go nie zna.'
+    : 'Odblokuj Sejf, żeby importować i widzieć koszty zakupu. Standardowo hasło zostaje w przeglądarce. Opcjonalna integracja serwerowa jest domyślnie wyłączona i wymaga włączenia przez administratora oraz podania kodu sejfu przez klienta.'
 
   return (
     <div className={`${mobile ? '' : 'border-t'} p-2 lg:p-3 ${isDarkBase ? 'border-white/10' : 'border-slate-200'}`}>

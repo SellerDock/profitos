@@ -5,10 +5,10 @@ declare global {
   }
 }
 
-export function trackRegistrationConversion() {
-  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return
+export function trackRegistrationConversion(adsConversion?: string | null) {
+  if (!adsConversion || typeof window === 'undefined' || typeof window.gtag !== 'function') return
   window.gtag('event', 'conversion', {
-    send_to: 'AW-16454698686/RAxFCM2Sg5AZEL6Nm6Y9',
+    send_to: adsConversion,
     value: 80.0,
     currency: 'PLN',
     transaction_id: '',

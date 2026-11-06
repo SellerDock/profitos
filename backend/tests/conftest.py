@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
+os.environ["SECRET_KEY"] = "test-key-0123456789abcdef0123456789abcdef"
 os.environ["API_BEARER_TOKEN"] = "test-token"
 os.environ["AUTH_COOKIE_SECURE"] = "false"
 # Force a deterministic CORS origin for the test session — the staging/prod

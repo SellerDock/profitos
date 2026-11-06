@@ -7,6 +7,7 @@ import { PublicThemeToggle } from '../components/PublicThemeToggle'
 import { productName, publicSiteUrl } from '../config/brand'
 import { BrandLogo } from '../components/BrandLogo'
 import { IS_APP } from '../utils/isApp'
+import { rejectOperatorOnUserLogin } from '../utils/loginPolicy'
 
 type LoginMode = 'user' | 'operator'
 type EnrollData = {
@@ -71,7 +72,7 @@ export default function Login({ mode = 'user' }: { mode?: LoginMode }) {
           setError('To wejście jest tylko dla operatora.')
           return
         }
-        if (!isOperatorLogin && response.user.is_operator) {
+        if (rejectOperatorOnUserLogin(modeDeployment, isOperatorLogin, response.user.is_operator)) {
           await logout()
           setError('Konto operatora loguje się osobnym wejściem.')
           return

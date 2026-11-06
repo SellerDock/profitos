@@ -5,12 +5,14 @@ import { PublicThemeToggle } from '../components/PublicThemeToggle'
 import { useTheme } from '../context/ThemeContext'
 import { productName, supportEmail } from '../config/brand'
 import { trackRegistrationConversion } from '../utils/gtag'
+import { useAppConfig } from '../context/DeploymentContext'
 
 const orderBuckets = ['<100', '100-1000', '1000-10000', '>10000', 'nie wiem']
 
 export default function Waitlist() {
   const { theme } = useTheme()
   const isDarkBase = theme === 'dark'
+  const { analytics } = useAppConfig()
   const [form, setForm] = useState<WaitlistPayload>({
     email: '',
     company: '',
@@ -34,7 +36,7 @@ export default function Waitlist() {
       const result = await authApi.waitlist({ ...form, privacy_accepted: privacyAccepted })
       setActivationEmailSent(Boolean(result.activation_email_sent))
       setStatus('ok')
-      trackRegistrationConversion()
+      trackRegistrationConversion(analytics?.ads_conversion)
     } catch (error: any) {
       setStatus(error?.response?.status === 429 ? 'rate' : 'error')
     }

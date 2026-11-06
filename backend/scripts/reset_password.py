@@ -2,11 +2,20 @@
 import argparse
 import getpass
 
-from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
+from app.core.device_session import revoke_user_sessions
 from app.core.security import hash_password
 from app.models.user import User
+
+
+def reset(db: Session, user: User, password: str) -> None:
+    user.password_hash = hash_password(password)
+    user.failed_login_attempts = 0
+    user.locked_until = None
+    revoke_user_sessions(db, user.id, reason="reset_password")
+    db.commit()
 
 
 def main() -> None:
@@ -24,11 +33,7 @@ def main() -> None:
         user = db.query(User).filter(User.email == args.email.lower()).first()
         if not user:
             raise SystemExit(f"User not found: {args.email.lower()}")
-        user.password_hash = hash_password(password)
-        user.failed_login_attempts = 0
-        user.locked_until = None
-        db.execute(text("UPDATE user_sessions SET revoked_at = now() WHERE user_id = :uid"), {"uid": user.id})
-        db.commit()
+        reset(db, user, password)
     finally:
         db.close()
     print("Password reset and existing sessions revoked.")

@@ -249,7 +249,9 @@ def upload_ads_import(
         raise HTTPException(status_code=400, detail="Najpierw połącz właściwe konto Allegro, a potem wgraj plik reklam.")
 
     filename = file.filename or "unknown"
-    content = file.file.read()
+    content = file.file.read(10 * 1024 * 1024 + 1)
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Plik przekracza limit 10 MB.")
 
     # Parse file
     try:

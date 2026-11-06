@@ -14,6 +14,8 @@ PUBLIC_API_PATHS = (
     "/api/v1/auth/totp/enroll",
     "/api/v1/auth/activate",
     "/api/v1/auth/refresh",
+    "/api/v1/auth/logout",
+    "/api/v1/auth/device/logout",
     "/api/v1/allegro/callback",
     "/api/v1/accounts/allegro/callback",
     "/api/v1/security/crypto-proof",

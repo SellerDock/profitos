@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { financialVaultApi, type FinancialVaultStatus } from '../api/client'
 import { IS_APP } from '../utils/isApp'
+import { useAuth } from './AuthContext'
+import { clearVaultSession, readVaultSession, saveVaultSession } from '../utils/authIsolation'
 import {
   createVerifier,
   DEFAULT_KDF,
@@ -20,8 +22,6 @@ import {
   storeKey,
 } from '../utils/nativeVaultBridge'
 
-const SESSION_KEY = 'profitos.financialVault.sessionKey'
-const SESSION_EXPIRES = 'profitos.financialVault.expiresAt'
 const UNLOCK_MS = IS_APP ? 12 * 60 * 60 * 1000 : 4 * 60 * 60 * 1000
 const IDLE_LOCK_MS = IS_APP ? 60 * 60 * 1000 : 30 * 60 * 1000
 const HIDDEN_LOCK_MS = IS_APP ? 60 * 60 * 1000 : 15 * 60 * 1000
@@ -45,6 +45,7 @@ const FinancialVaultContext = createContext<VaultContextValue | null>(null)
 
 export function FinancialVaultProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
   const [key, setKey] = useState<CryptoKey | null>(null)
   const { data: status, isLoading } = useQuery({
     queryKey: ['financial-vault-status'],
@@ -53,19 +54,18 @@ export function FinancialVaultProvider({ children }: { children: React.ReactNode
 
   const lock = useCallback(() => {
     setKey(null)
-    sessionStorage.removeItem(SESSION_KEY)
-    sessionStorage.removeItem(SESSION_EXPIRES)
+    clearVaultSession(sessionStorage)
   }, [])
 
   useEffect(() => {
-    const expiresAt = Number(sessionStorage.getItem(SESSION_EXPIRES) || 0)
-    const rawKey = sessionStorage.getItem(SESSION_KEY)
-    if (!rawKey || !expiresAt || expiresAt < Date.now()) {
-      lock()
-      return
+    let active = true
+    setKey(null)
+    if (user) {
+      const rawKey = readVaultSession(sessionStorage, user)
+      if (rawKey) importKey(rawKey).then(value => { if (active) setKey(value) }).catch(() => { if (active) lock() })
     }
-    importKey(rawKey).then(setKey).catch(lock)
-  }, [lock])
+    return () => { active = false }
+  }, [user?.id, user?.tenant_id, lock])
 
   useEffect(() => {
     if (!key) return
@@ -121,10 +121,9 @@ export function FinancialVaultProvider({ children }: { children: React.ReactNode
   }, [key, lock])
 
   const persistKey = useCallback(async (vaultKey: CryptoKey, persistAfterReload: boolean) => {
-    if (!persistAfterReload) return
-    sessionStorage.setItem(SESSION_KEY, await exportKey(vaultKey))
-    sessionStorage.setItem(SESSION_EXPIRES, String(Date.now() + UNLOCK_MS))
-  }, [])
+    if (!persistAfterReload || !user) return
+    saveVaultSession(sessionStorage, await exportKey(vaultKey), Date.now() + UNLOCK_MS, user)
+  }, [user])
 
   const setupMutation = useMutation({
     mutationFn: financialVaultApi.setup,

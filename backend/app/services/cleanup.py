@@ -12,6 +12,7 @@ TENANT_TABLES_IN_DELETE_ORDER = [
     "encrypted_sku_cost_history",
     "encrypted_sku_costs",
     "financial_vaults",
+    "sku_multiplier_patterns",
     "sku_aliases",
     "sku_masters",
     "allegro_ads_imports",

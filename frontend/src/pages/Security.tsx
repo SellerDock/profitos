@@ -8,14 +8,14 @@ import { useAuth } from '../context/AuthContext'
 import { productName } from '../config/brand'
 
 const HOW_IT_WORKS = [
-  'Ustalasz hasło sejfu finansowego. Nie wysyłamy go na nasz serwer i nigdzie go nie zapisujemy.',
-  'Z hasła w Twojej przeglądarce powstaje klucz szyfrujący (Argon2id). Sam klucz również nie opuszcza komputera.',
+  'Ustalasz hasło sejfu finansowego. Standardowo nie wysyłamy go na serwer ani nie zapisujemy.',
+  'Z hasła w Twojej przeglądarce powstaje klucz szyfrujący (Argon2id). Standardowo klucz pozostaje na komputerze.',
   'Koszty zakupu są szyfrowane (AES-256-GCM) jeszcze zanim wyjdą z przeglądarki.',
-  'Na serwer trafia wyłącznie zaszyfrowana treść. Ponowny odczyt kwoty wymaga znów Twojego hasła.',
+  'Standardowo na serwer trafia zaszyfrowana treść. Ponowny odczyt kwoty wymaga Twojego hasła.',
 ]
 
 const COMMITMENTS = [
-  'Nie znamy Twojego hasła sejfu i nie mamy klucza zapasowego — jeśli je zgubisz, my też nie odzyskamy kosztów.',
+  'Nie mamy klucza zapasowego – jeśli zgubisz hasło sejfu, nie odzyskamy kosztów.',
   'Nie logujemy hasła ani odszyfrowanych kwot; w logach i kopiach zapasowych bazy jest wyłącznie zaszyfrowana treść.',
   'Kod odpowiedzialny za szyfrowanie jest publiczny, wersjonowany i ma jawny odcisk pliku do weryfikacji.',
   'Zmiana ceny zakupu tworzy nowy zaszyfrowany rekord — historia kosztów także jest szyfrowana, nie zwykłym tekstem.',
@@ -31,7 +31,7 @@ export default function Security() {
         <h1 className="mb-3 text-2xl font-bold text-slate-950">Bezpieczeństwo danych finansowych</h1>
         <p className="max-w-3xl text-sm leading-6 text-slate-600">
           Koszty zakupu produktów są szyfrowane na Twoim komputerze. Na serwer {productName()}{' '}
-          trafia już zaszyfrowana wersja, dlatego nie możemy podejrzeć Twoich stawek zakupu ani marż.
+          standardowo trafia zaszyfrowana wersja. Opcjonalna integracja serwerowa jest domyślnie wyłączona; działa dopiero po włączeniu przez administratora i podaniu kodu sejfu przez klienta. Wtedy serwer może odszyfrować koszty podczas obsługi żądania.
           To najbardziej wrażliwa część danych sprzedawcy, więc traktujemy ją inaczej niż resztę —
           poniżej tłumaczymy, jak to działa i jak możesz to samodzielnie sprawdzić.
         </p>
@@ -102,7 +102,7 @@ export default function Security() {
           Opcja jest domyślnie wyłączona — decydujesz sam. Gdy ją włączysz, klucz sejfu jest
           opakowywany kluczem z Android Keystore (StrongBox, jeśli urządzenie go udostępnia,
           albo bezpieczny magazyn TEE) i zapisywany wyłącznie w telefonie;
-          każde użycie wymaga potwierdzenia biometrią, a hasła nadal nie wysyłamy na serwer.
+          każde użycie wymaga potwierdzenia biometrią. Standardowo hasło nie jest wysyłane na serwer.
           Zmiana biometrii w ustawieniach systemu unieważnia zapis — wtedy włączasz opcję ponownie.
           Zapamiętany klucz możesz w każdej chwili usunąć w aplikacji, a przy wylogowaniu usuwamy
           go automatycznie.

@@ -219,6 +219,7 @@ export const appDownloadApi = {
 }
 
 export interface AuthUser {
+  id: number
   email: string
   is_operator: boolean
   tenant_id: number | null

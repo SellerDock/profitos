@@ -1,5 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { clearUserData, sameIdentity } from '../utils/authIsolation'
 import { authApi, refreshSession, type AuthUser, type LoginResponse } from '../api/client'
 import { clearStoredKey } from '../utils/nativeVaultBridge'
 
@@ -17,11 +19,21 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
+  const previousUser = useRef<AuthUser | null>(null)
+  const applyUser = useCallback(async (current: AuthUser) => {
+    if (previousUser.current && !sameIdentity(previousUser.current, current)) {
+      setUser(null)
+      await clearUserData(queryClient, sessionStorage)
+    }
+    previousUser.current = current
+    setUser(current)
+  }, [queryClient])
 
   const refresh = useCallback(async () => {
     try {
       const current = await authApi.me()
-      setUser(current)
+      await applyUser(current)
     } catch {
       // Session cookie missing/expired: try ONE silent refresh via the
       // device-session refresh token before giving up. No retry loop —
@@ -29,14 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         await refreshSession()
         const current = await authApi.me()
-        setUser(current)
+        await applyUser(current)
       } catch {
         setUser(null)
       }
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [applyUser])
 
   useEffect(() => {
     void refresh()
@@ -50,20 +62,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ...(rememberDevice !== undefined ? { remember_device: rememberDevice } : {}),
     }
     const response = await authApi.login(payload)
-    if (response.status === 'ok') setUser(response.user)
+    if (response.status === 'ok') await applyUser(response.user)
     return response
-  }, [])
+  }, [applyUser])
 
   const enrollTotp = useCallback(async (totp: string) => {
     const response = await authApi.enrollTotp({ totp })
-    setUser(response.user)
+    await applyUser(response.user)
     return response.user
-  }, [])
+  }, [applyUser])
 
   const logout = useCallback(async () => {
     try {
       await authApi.logout()
     } finally {
+      setUser(null)
+      await clearUserData(queryClient, sessionStorage)
+      previousUser.current = null
       // Zapamiętany klucz sejfu (biometria w aplikacji Android) znika przy wylogowaniu.
       // Use best-effort clear, do not block logout if this fails.
       try {
@@ -71,9 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {
         // Native bridge cleanup is best-effort and must not block logout.
       }
-      setUser(null)
     }
-  }, [])
+  }, [queryClient])
 
   const value = useMemo(
     () => ({ user, loading, login, enrollTotp, logout, refresh }),

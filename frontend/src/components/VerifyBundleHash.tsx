@@ -77,9 +77,9 @@ export function VerifyBundleHash() {
             <Badge tone="green">Można sprawdzić</Badge>
           </div>
           <p className="max-w-2xl text-sm leading-6 text-slate-600">
-            Po kliknięciu przeglądarka sprawdzi, czy plik odpowiedzialny za szyfrowanie jest taki
-            sam jak wersja opublikowana na GitHubie. Hasło sejfu ani dane finansowe nie są do tego
-            potrzebne.
+            Po kliknięciu przeglądarka porówna skrót pliku z oczekiwanym skrótem z endpointu
+            crypto-proof tego serwera. Niezależnie porównaj wynik z zaufanym wydaniem na GitHubie
+            SellerDock/profitos-crypto. Hasło sejfu ani dane finansowe nie są potrzebne.
           </p>
         </div>
         <button
@@ -112,7 +112,7 @@ export function VerifyBundleHash() {
             <CheckCircle2 size={18} className="text-finance-green" />
             <Badge tone="green">Hash zgodny</Badge>
             <p className="text-sm text-finance-green">
-              Plik jest zgodny z publiczną wersją na GitHubie.
+              Skrót pliku jest zgodny ze skrótem podanym przez serwer.
             </p>
           </div>
           <HashLine label="Policzony w tej przeglądarce" value={computedHash} />

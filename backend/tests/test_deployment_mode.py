@@ -78,7 +78,7 @@ def test_allegro_fee_labels_available_in_both_modes(monkeypatch, authed_client):
 @pytest.mark.parametrize("mode", ["selfhosted", "hosted"])
 def test_public_deployment_config(monkeypatch, app_client, mode):
     monkeypatch.setattr(settings, "DEPLOYMENT_MODE", mode)
-    for field in ("BRAND_SUPPORT_EMAIL", "PUBLIC_SITE_URL", "PUBLIC_APP_URL", "ANALYTICS_GA_ID", "ANALYTICS_AHREFS_KEY"):
+    for field in ("BRAND_SUPPORT_EMAIL", "PUBLIC_SITE_URL", "PUBLIC_APP_URL", "ANALYTICS_GA_ID", "ANALYTICS_AHREFS_KEY", "ANALYTICS_ADS_CONVERSION"):
         monkeypatch.setattr(settings, field, None)
     monkeypatch.setattr(settings, "BRAND_PRODUCT_NAME", "ProfitOS")
     response = app_client.get("/api/v1/public/config")
@@ -86,27 +86,38 @@ def test_public_deployment_config(monkeypatch, app_client, mode):
     assert response.json() == {
         "deployment_mode": mode,
         "brand": {"product_name": "ProfitOS", "support_email": None, "public_site_url": None, "app_url": None},
-        "analytics": {"ga_id": None, "ahrefs_key": None},
+        "analytics": {"ga_id": None, "ahrefs_key": None, "ads_conversion": None},
     }
 
 
 def test_public_config_values(monkeypatch, app_client):
     values = {"BRAND_PRODUCT_NAME": "Example", "BRAND_SUPPORT_EMAIL": "help@example.com",
               "PUBLIC_SITE_URL": "https://example.com", "PUBLIC_APP_URL": "https://app.example.com",
-              "ANALYTICS_GA_ID": "G-ABC123", "ANALYTICS_AHREFS_KEY": "key_123"}
+              "ANALYTICS_GA_ID": "G-ABC123", "ANALYTICS_AHREFS_KEY": "key_123", "ANALYTICS_ADS_CONVERSION": "AW-123/abc_X-1"}
     for key, value in values.items():
         monkeypatch.setattr(settings, key, value)
     response = app_client.get("/api/v1/public/config")
     assert response.status_code == 200
     assert response.json()["brand"] == {"product_name": "Example", "support_email": "help@example.com",
                                         "public_site_url": "https://example.com", "app_url": "https://app.example.com"}
-    assert response.json()["analytics"] == {"ga_id": "G-ABC123", "ahrefs_key": "key_123"}
+    assert response.json()["analytics"] == {"ga_id": "G-ABC123", "ahrefs_key": "key_123", "ads_conversion": "AW-123/abc_X-1"}
 
 
 @pytest.mark.parametrize("field,value", [("PUBLIC_SITE_URL", "ftp://example.com"),
     ("PUBLIC_APP_URL", "example.com"), ("ANALYTICS_GA_ID", "G-bad"),
-    ("ANALYTICS_AHREFS_KEY", "bad key")])
+    ("ANALYTICS_AHREFS_KEY", "bad key"), ("ANALYTICS_ADS_CONVERSION", "AW-abc/invalid")])
 def test_public_config_validation(field, value):
     with pytest.raises(ValidationError):
-        Settings(_env_file=None, DATABASE_URL="sqlite://", SECRET_KEY="secret",
+        Settings(_env_file=None, DATABASE_URL="sqlite://", SECRET_KEY="test-key-0123456789abcdef0123456789abcdef",
                  ALLEGRO_REDIRECT_URI="http://localhost", APP_BASE_URL="http://localhost", **{field: value})
+
+
+@pytest.mark.parametrize("secret", ["", "short", "change-me-please-change-me-please-change-me", "changeme" * 5, "secret" * 6])
+def test_invalid_secret_key(secret):
+    with pytest.raises(ValidationError, match="openssl rand -hex 32"):
+        Settings(_env_file=None, DATABASE_URL="sqlite://", SECRET_KEY=secret, ALLEGRO_REDIRECT_URI="http://localhost", APP_BASE_URL="http://localhost")
+
+
+def test_valid_secret_key():
+    secret = "ab" * 32
+    assert Settings(_env_file=None, DATABASE_URL="sqlite://", SECRET_KEY=secret, ALLEGRO_REDIRECT_URI="http://localhost", APP_BASE_URL="http://localhost").SECRET_KEY == secret

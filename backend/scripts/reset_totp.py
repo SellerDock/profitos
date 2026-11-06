@@ -1,10 +1,18 @@
 """Reset a user's TOTP enrollment and revoke existing sessions."""
 import argparse
 
-from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
+from app.core.device_session import revoke_user_sessions
 from app.models.user import User
+
+
+def reset(db: Session, user: User) -> None:
+    user.totp_secret = None
+    user.totp_enrolled_at = None
+    revoke_user_sessions(db, user.id, reason="reset_totp")
+    db.commit()
 
 
 def main() -> None:
@@ -18,10 +26,7 @@ def main() -> None:
         user = db.query(User).filter(User.email == email).first()
         if not user:
             raise SystemExit(f"User not found: {email}")
-        user.totp_secret = None
-        user.totp_enrolled_at = None
-        db.execute(text("UPDATE user_sessions SET revoked_at = now() WHERE user_id = :uid"), {"uid": user.id})
-        db.commit()
+        reset(db, user)
     finally:
         db.close()
     print(f"User {email} may now log in and re-enroll TOTP.")

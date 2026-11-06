@@ -35,7 +35,7 @@ const featureCards = [
   {
     icon: ShieldCheck,
     title: 'Twoje koszty są Twoje',
-    text: 'Koszty zakupu szyfrowane Argon2id+AES-256-GCM po stronie Twojej przeglądarki. Klucz nigdy nie trafia na nasz serwer.',
+    text: 'Koszty zakupu szyfrowane Argon2id+AES-256-GCM po stronie Twojej przeglądarki. Standardowo klucz nie trafia na serwer. Opcjonalna integracja serwerowa, domyślnie wyłączona, wymaga włączenia przez administratora i podania kodu sejfu przez klienta.',
   },
   {
     icon: DatabaseZap,
@@ -81,7 +81,7 @@ const benefits = [
   {
     icon: Lock,
     title: 'Koszty zakupu tylko dla Ciebie',
-    text: 'Ceny zakupu szyfrujesz hasłem w przeglądarce. Do naszego serwera trafia wyłącznie zaszyfrowana treść, nigdy Twoje marże.',
+    text: 'Ceny zakupu szyfrujesz hasłem w przeglądarce. Standardowo na serwer trafia zaszyfrowana treść. Opcjonalna integracja serwerowa jest domyślnie wyłączona i wymaga włączenia przez administratora oraz podania kodu sejfu przez klienta.',
   },
 ]
 
@@ -107,7 +107,7 @@ const faqItems = [
   },
   {
     q: 'Czy widzicie moje koszty zakupu i marże?',
-    a: 'Nie. Ceny zakupu szyfrujesz hasłem w swojej przeglądarce (Argon2id + AES-256-GCM). Na nasz serwer trafia tylko zaszyfrowana treść — klucz i hasło nigdy go nie opuszczają. Kod modułu szyfrującego jest publiczny i można go zweryfikować.',
+    a: 'Standardowo ceny zakupu szyfrujesz w przeglądarce (Argon2id + AES-256-GCM). Opcjonalna integracja serwerowa jest domyślnie wyłączona; jeśli administrator ją włączy, a klient poda kod sejfu, serwer może odszyfrować koszty podczas obsługi żądania. Kod modułu szyfrującego jest publiczny i można go zweryfikować.',
   },
   {
     q: 'Ile kont Allegro mogę podłączyć?',
@@ -325,7 +325,7 @@ export default function Landing() {
 
       <Section className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
-          <h2 className={`mb-3 text-2xl font-bold ${headingClass}`}>Dlaczego nie widzimy Twoich kosztów</h2>
+          <h2 className={`mb-3 text-2xl font-bold ${headingClass}`}>Jak chronimy Twoje koszty</h2>
           <p className={`text-sm leading-6 ${mutedClass}`}>
             Publiczny moduł szyfrujący i reproducible build pozwalają porównać kod ładowany przez
             aplikację z hashem opublikowanym w GitHub Release.

@@ -463,3 +463,50 @@ def test_refresh_is_rate_limited_per_ip(app_client, device_users):
         assert response.status_code == 401
     limited = app_client.post("/api/v1/auth/refresh", headers=_xrw())
     assert limited.status_code == 429
+
+
+@pytest.mark.contract
+@pytest.mark.parametrize("via_header", [False, True])
+def test_logout_revokes_refresh_family(app_client, device_users, db_session, via_header):
+    raw, row = _seed_device_session(db_session, user=device_users["a"])
+    headers = _xrw({"X-Refresh-Token": raw} if via_header else None)
+    if not via_header:
+        app_client.cookies.set("apos_refresh", raw, path="/api/v1/auth")
+    response = app_client.post("/api/v1/auth/logout", headers=headers)
+    assert response.status_code == 204
+    cookies = response.headers.get_list("set-cookie")
+    assert any("Path=/api/v1/auth;" in cookie for cookie in cookies)
+    assert any("Path=/api/v1/auth/refresh;" in cookie for cookie in cookies)
+    db_session.expire_all()
+    assert db_session.get(DeviceSession, row.id).revoked_reason == "logout"
+    response = app_client.post("/api/v1/auth/refresh", headers=_xrw({"X-Refresh-Token": raw}))
+    assert response.status_code == 401
+
+
+@pytest.mark.contract
+def test_refresh_sets_new_cookie_path_and_removes_legacy(app_client, device_users, db_session):
+    raw, _ = _seed_device_session(db_session, user=device_users["a"])
+    response = app_client.post("/api/v1/auth/refresh", headers=_xrw({"X-Refresh-Token": raw}))
+    assert response.status_code == 200
+    cookies = response.headers.get_list("set-cookie")
+    assert any("apos_refresh=" in c and "Path=/api/v1/auth;" in c and "Max-Age=0" not in c for c in cookies)
+    assert any("apos_refresh=" in c and "Path=/api/v1/auth/refresh;" in c and "Max-Age=0" in c for c in cookies)
+
+
+@pytest.mark.contract
+@pytest.mark.parametrize("script", ["reset_password", "reset_totp"])
+def test_reset_revokes_all_sessions(device_users, db_session, script):
+    from scripts import reset_password, reset_totp
+
+    user = device_users["a"]
+    _, device = _seed_device_session(db_session, user=user)
+    session = UserSession(id=new_session_token(), user_id=user.id, expires_at=datetime.utcnow() + timedelta(days=1))
+    db_session.add(session)
+    db_session.commit()
+    if script == "reset_password":
+        reset_password.reset(db_session, user, "NewCorrectHorseBattery1!")
+    else:
+        reset_totp.reset(db_session, user)
+    db_session.expire_all()
+    assert db_session.get(UserSession, session.id).revoked_at is not None
+    assert db_session.get(DeviceSession, device.id).revoked_reason == script

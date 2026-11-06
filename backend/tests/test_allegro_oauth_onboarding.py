@@ -1,6 +1,7 @@
 from urllib.parse import parse_qs, quote, urlparse
 
 import httpx
+import pytest
 from sqlalchemy import text
 
 from app.core.config import settings
@@ -13,6 +14,7 @@ def test_one_click_oauth_creates_account_from_allegro_profile(authed_client, db_
     db_session.execute(text("DELETE FROM accounts WHERE allegro_client_id = 'global-client' OR name = 'test_account'"))
     db_session.commit()
 
+    monkeypatch.setattr(settings, "DEPLOYMENT_MODE", "hosted")
     monkeypatch.setattr(settings, "ALLEGRO_CLIENT_ID", "global-client", raising=False)
     monkeypatch.setattr(settings, "ALLEGRO_CLIENT_SECRET", "global-secret", raising=False)
     monkeypatch.setattr(settings, "ALLEGRO_SCOPES", "allegro:api:profile:read", raising=False)
@@ -48,7 +50,7 @@ def test_one_click_oauth_creates_account_from_allegro_profile(authed_client, db_
             json={
                 "id": "12345678",
                 "login": "test_account",
-                "email": "test_account@allegro.pl",
+                "email": "test_account@example.test",
                 "company": {"name": "Test Company"},
             },
         )
@@ -136,3 +138,35 @@ def test_allegro_oauth_error_redirects_to_settings(authed_client, monkeypatch):
     query = parse_qs(redirect.query)
     assert query["allegro_error"] == ["invalid_scope"]
     assert query["allegro_error_description"] == ["OAuth 2.0 Parameter: scope"]
+
+
+@pytest.mark.parametrize("mode", ["hosted", "selfhosted"])
+def test_reconnect_after_deletion_respects_deployment_mode(db_session, monkeypatch, mode):
+    from app.services.allegro import AllegroService
+    monkeypatch.setattr(settings, "DEPLOYMENT_MODE", mode)
+    monkeypatch.setattr(settings, "ALLEGRO_CLIENT_ID", "global-client")
+    monkeypatch.setattr(settings, "ALLEGRO_CLIENT_SECRET", "global-secret")
+    profile = {"id": "reconnect-test", "login": "reconnect-test"}
+    tokens = {"access_token": "token", "refresh_token": "refresh", "expires_in": 3600}
+    service = AllegroService(db_session)
+    db_session.execute(text("DELETE FROM allegro_account_claims WHERE allegro_user_id = 'reconnect-test'"))
+    db_session.execute(text("DELETE FROM accounts WHERE allegro_user_id = 'reconnect-test'"))
+    db_session.commit()
+    account = service.upsert_account_from_profile(1, profile, tokens)
+    claim = db_session.query(AllegroAccountClaim).filter_by(allegro_user_id="reconnect-test").first()
+    assert (claim is not None) == (mode == "hosted")
+    db_session.delete(account)
+    db_session.commit()
+    if mode == "hosted":
+        with pytest.raises(ValueError, match="wcześniej dodane"):
+            service.upsert_account_from_profile(1, profile, tokens)
+        db_session.delete(claim)
+    else:
+        legacy = AllegroAccountClaim(allegro_user_id="reconnect-test", tenant_id=1, account_id=None)
+        db_session.add(legacy)
+        db_session.commit()
+        account = service.upsert_account_from_profile(1, profile, tokens)
+        assert legacy.account_id is None
+        db_session.delete(account)
+        db_session.delete(legacy)
+    db_session.commit()

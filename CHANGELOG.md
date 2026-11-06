@@ -13,6 +13,12 @@ Pierwsze wydanie open source.
 - Integrację profit-by-ean z opcjonalnym odszyfrowaniem Financial Vault po stronie serwera, domyślnie wyłączonym.
 - Testy izolacji firm i klasyfikacji tras oraz syntetyczne testy rozliczeń, zwrotów i dostaw.
 - Konfigurowalny User-Agent Allegro.
+- Walidację `SECRET_KEY` i logowanie administratora instalacji self-hosted.
+- Limity przesyłanych plików.
+
+### Poprawiono
+
+- Bezpieczeństwo wylogowania i izolację danych w przeglądarce.
 
 ### Zmieniono
 

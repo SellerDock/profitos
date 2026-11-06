@@ -15,5 +15,5 @@ def public_config():
             'public_site_url': settings.PUBLIC_SITE_URL,
             'app_url': settings.PUBLIC_APP_URL,
         },
-        'analytics': {'ga_id': settings.ANALYTICS_GA_ID, 'ahrefs_key': settings.ANALYTICS_AHREFS_KEY},
+        'analytics': {'ga_id': settings.ANALYTICS_GA_ID, 'ahrefs_key': settings.ANALYTICS_AHREFS_KEY, 'ads_conversion': settings.ANALYTICS_ADS_CONVERSION},
     }

@@ -8,7 +8,7 @@ ProfitOS is an open-source tool for analyzing net profit from Allegro sales. It 
 
 ProfitOS pomaga analizować zysk netto ze sprzedaży na Allegro. Łączy dane o zamówieniach, opłatach Allegro, zwrotach, reklamach i magazynie. Koszty zakupu są szyfrowane w przeglądarce w Financial Vault za pomocą Argon2id i AES-GCM. Model bezpieczeństwa opisuje [SECURITY.md](SECURITY.md).
 
-![Panel ProfitOS – miejsce na zrzut ekranu](docs/img/dashboard.png)
+Zrzuty ekranu dodamy później.
 
 ## Szybki start
 
@@ -29,11 +29,20 @@ Instrukcja instalacji własnej instancji znajduje się w [deploy/selfhosted/READ
 
 ## Rozwój lokalny
 
-Do pracy lokalnej użyj zestawu z `deploy/selfhosted/`: w `.env` ustaw `PROFITOS_DOMAIN=localhost`, a w `Caddyfile` odkomentuj wariant `http://localhost`. Następnie:
+Do pracy lokalnej użyj zestawu z `deploy/selfhosted/`. Skopiuj `.env.example` do `.env`, uzupełnij wymagane sekrety i ustaw w nim wszystkie poniższe wartości:
+
+```dotenv
+APP_BASE_URL=http://localhost
+BACKEND_CORS_ORIGINS=http://localhost
+ALLEGRO_REDIRECT_URI=http://localhost/api/v1/accounts/allegro/callback
+AUTH_COOKIE_SECURE=false
+PROFITOS_DOMAIN=localhost
+```
+
+`AUTH_COOKIE_SECURE=false` stosuj wyłącznie lokalnie przez HTTP. W `Caddyfile` zastąp pierwszy blok odkomentowanym wariantem `http://localhost`. Produkcyjny redirect URI Allegro może wymagać HTTPS, dlatego pełny OAuth lokalnie może być niedostępny. Następnie:
 
 ```bash
 cd deploy/selfhosted
-cp .env.example .env   # uzupełnij wartości
 docker compose up -d --build
 docker compose exec apos-backend python -m scripts.setup --company "Moja firma" --email admin@example.com
 ```

@@ -19,7 +19,7 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy.orm import Session
 
 from app.core.security import new_session_token
-from app.models.user import DeviceSession
+from app.models.user import DeviceSession, UserSession
 
 REFRESH_SLIDING_TTL = timedelta(days=30)
 REFRESH_ABSOLUTE_TTL = timedelta(days=90)
@@ -129,6 +129,16 @@ def revoke_family(db: Session, family_id: str, *, reason: str) -> None:
         DeviceSession.revoked_at.is_(None),
     ).update({"revoked_at": _now(), "revoked_reason": reason}, synchronize_session=False)
     db.commit()
+
+
+def revoke_user_sessions(db: Session, user_id: int, *, reason: str) -> None:
+    now = _now()
+    db.query(UserSession).filter(UserSession.user_id == user_id, UserSession.revoked_at.is_(None)).update(
+        {"revoked_at": now}, synchronize_session=False
+    )
+    db.query(DeviceSession).filter(DeviceSession.user_id == user_id, DeviceSession.revoked_at.is_(None)).update(
+        {"revoked_at": now, "revoked_reason": reason}, synchronize_session=False
+    )
 
 
 def find_device_session_by_token(db: Session, raw_token: str) -> DeviceSession | None:
