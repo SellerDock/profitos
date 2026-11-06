@@ -2,6 +2,12 @@
 
 Format opiera się na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).
 
+## [1.1.1] – 2026-11-07
+
+### Poprawiono
+
+- Regulamin (`/terms`, `/regulamin`) otwiera się bez logowania – wcześniej nieudane odświeżenie sesji przekierowywało na stronę logowania.
+
 ## [1.1.0] – 2026-11-07
 
 ### Dodano

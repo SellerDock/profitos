@@ -29,7 +29,7 @@ api.interceptors.response.use(
     const status = error?.response?.status
     const config = error.config as RetriableRequestConfig | undefined
     const url = String(config?.url || '')
-    const publicPaths = ['/', '/login', '/admiiii123', '/register', '/security', '/privacy', '/activate', '/pobierz']
+    const publicPaths = ['/', '/login', '/admiiii123', '/register', '/security', '/privacy', '/terms', '/regulamin', '/activate', '/pobierz']
     const isPublicPath = publicPaths.includes(window.location.pathname)
     const isRefreshCall = url.includes('/auth/refresh')
     const isLoginCall = url.includes('/auth/login')
