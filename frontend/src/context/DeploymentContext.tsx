@@ -31,6 +31,8 @@ export function DeploymentProvider({ children }: { children: ReactNode }) {
       if (config.deployment_mode !== 'hosted' && config.deployment_mode !== 'selfhosted') {
         throw new Error('Invalid deployment mode')
       }
+      // Before children mount, so pages that set their own title keep it.
+      if (config.brand?.product_name) document.title = config.brand.product_name
       return config
     },
     staleTime: Infinity,

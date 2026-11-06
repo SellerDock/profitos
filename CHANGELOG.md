@@ -2,7 +2,13 @@
 
 Format opiera się na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).
 
-## [1.0.0] – nieopublikowane
+## [1.0.1] – 2026-11-06
+
+### Poprawiono
+
+- Tytuł karty przeglądarki bierze nazwę produktu z konfiguracji (`BRAND_PRODUCT_NAME`).
+
+## [1.0.0] – 2026-11-06
 
 Pierwsze wydanie open source.
 
