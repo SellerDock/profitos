@@ -15,7 +15,8 @@ function monthLabel(value: string) {
   return new Intl.DateTimeFormat('pl-PL', { month: 'long', year: 'numeric' }).format(new Date(`${value}T00:00:00`))
 }
 
-function dateLabel(value: string) {
+function dateLabel(value: string | null) {
+  if (!value) return '–'
   return new Intl.DateTimeFormat('pl-PL', { dateStyle: 'medium' }).format(new Date(`${value}T00:00:00`))
 }
 
@@ -84,7 +85,7 @@ export default function AdminRevenue() {
       <div>
         <h2 className="text-lg font-semibold text-white">Przychody orientacyjne</h2>
         <p className="mt-1 text-sm text-slate-400">
-          Szacunek netto według cennika, liczby zamówień w miesiącu i końca 30-dniowego triala.
+          Szacunek netto dla triala oraz przychód z aktywnych pakietów rocznych.
           Konto operatora nie jest liczone jako klient.
         </p>
       </div>
@@ -93,6 +94,7 @@ export default function AdminRevenue() {
 
       {data && (
         <>
+          <div className="rounded border border-slate-700 bg-slate-900 p-4 text-sm text-slate-300">Pakiety roczne: <strong className="text-white">{money(data.annual_subscription_revenue_net)} netto / rok</strong> · {money(data.monthly_subscription_revenue_net)} netto / miesiąc</div>
           <div className="grid gap-4 lg:grid-cols-2">
             <SummaryCard
               title="Wszyscy klienci"
@@ -109,8 +111,7 @@ export default function AdminRevenue() {
           </div>
 
           <div className="rounded border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-            To jest prognoza operacyjna, nie księgowość. Klient aktywny to konto, które po trialu zaakceptowało
-            regulamin i kliknęło przejście na pakiet płatny.
+            To jest prognoza operacyjna, nie księgowość. Zestawienie klientów aktywnych dotyczy akceptacji płatnego planu po trialu.
           </div>
 
           <div className="overflow-x-auto rounded border border-slate-700">
@@ -118,7 +119,8 @@ export default function AdminRevenue() {
               <thead className="bg-slate-800 text-left text-xs uppercase text-slate-400">
                 <tr>
                   <th className="px-3 py-2">Konto</th>
-                  <th className="px-3 py-2">Trial</th>
+                  <th className="px-3 py-2">Schemat / trial</th>
+                  <th className="px-3 py-2">Pakiet roczny</th>
                   <th className="px-3 py-2">FV</th>
                   <th className="px-3 py-2">{monthLabel(data.current_month)}</th>
                   <th className="px-3 py-2">{monthLabel(data.previous_month)}</th>
@@ -126,7 +128,7 @@ export default function AdminRevenue() {
               </thead>
               <tbody className="divide-y divide-slate-800 bg-slate-900 text-slate-200">
                 {data.items.length === 0 && (
-                  <tr><td className="px-3 py-4 text-slate-400" colSpan={5}>Brak klientów poza kontem operatora.</td></tr>
+                  <tr><td className="px-3 py-4 text-slate-400" colSpan={6}>Brak klientów poza kontem operatora.</td></tr>
                 )}
                 {data.items.map(tenant => (
                   <tr key={tenant.tenant_id}>
@@ -136,11 +138,12 @@ export default function AdminRevenue() {
                       {!tenant.is_active && <div className="mt-1 text-xs text-red-300">konto nieaktywne</div>}
                     </td>
                     <td className="px-3 py-3">
-                      <div className="text-white">do {dateLabel(tenant.trial_ends_at)}</div>
+                      <div className="text-white">{tenant.billing_scheme === 'pool_v2' ? 'Pula' : `Trial do ${dateLabel(tenant.trial_ends_at)}`}</div>
                       <div className={tenant.trial_active ? 'text-xs text-emerald-300' : 'text-xs text-slate-500'}>
-                        {tenant.trial_active ? 'trial aktywny' : 'po trialu'}
+                        {tenant.billing_scheme === 'pool_v2' ? '' : tenant.trial_active ? 'trial aktywny' : 'po trialu'}
                       </div>
                     </td>
+                    <td className="px-3 py-3">{money(tenant.annual_subscription_revenue_net)} / rok<div className="text-xs text-slate-400">{money(tenant.monthly_subscription_revenue_net)} / miesiąc</div></td>
                     <td className="px-3 py-3">
                       <span className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs ${tenant.paid_plan_accepted ? 'bg-emerald-500/15 text-emerald-200' : 'bg-slate-700 text-slate-300'}`}>
                         <ReceiptText size={13} />

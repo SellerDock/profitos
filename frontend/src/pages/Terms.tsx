@@ -4,7 +4,7 @@ import { PublicThemeToggle } from '../components/PublicThemeToggle'
 import { BrandLogo } from '../components/BrandLogo'
 import { productName, supportEmail } from '../config/brand'
 
-const updatedAt = '6 listopada 2026'
+const updatedAt = '7 listopada 2026'
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -34,7 +34,7 @@ export default function Terms() {
             pakiety płatne, rozliczenia, integrację z Allegro, Sejf Finansowy, reklamacje
             oraz odpowiedzialność za dane i decyzje biznesowe.
           </p>
-          <p className="text-sm text-slate-400">Wersja: 2026-11-06 · ostatnia aktualizacja: {updatedAt}</p>
+          <p className="text-sm text-slate-400">Wersja: 2026-11-07 · ostatnia aktualizacja: {updatedAt}</p>
         </section>
 
         <Section title="1. Usługodawca i kontakt">
@@ -64,9 +64,9 @@ export default function Terms() {
             w którym koszty zakupu są szyfrowane po stronie przeglądarki użytkownika.
           </p>
           <p>
-            <strong>Okres próbny</strong> oznacza pierwsze 30 dni korzystania z konta bez opłaty.
-            <strong>Pakiet płatny</strong> oznacza dalszy dostęp do automatycznej synchronizacji
-            i funkcji zgodnie z cennikiem po zakończeniu okresu próbnego.
+            <strong>Pula startowa</strong> oznacza 1000 zamówień, które nowe konto może przetworzyć
+            bez opłaty, bez limitu czasu. <strong>Pakiet płatny</strong> oznacza roczny dostęp
+            z wyższym miesięcznym limitem zamówień zgodnie z cennikiem.
           </p>
         </Section>
 
@@ -143,45 +143,47 @@ export default function Terms() {
           </p>
         </Section>
 
-        <Section title="8. Okres próbny i pakiet płatny">
+        <Section title="8. Pula startowa, darmowy limit i pakiety">
           <p>
-            Każde konto ma 30 dni okresu próbnego. W czasie triala możesz korzystać z aplikacji bez opłat.
-            Po trialu dalsze automatyczne pobieranie nowych danych wymaga zaakceptowania regulaminu i
-            kliknięcia przycisku „Przechodzę na pakiet płatny” w zakładce Rozliczenia.
+            Każde konto założone od dnia wejścia w życie tej wersji regulaminu otrzymuje pulę startową
+            1000 zamówień. Do puli liczą się zamówienia złożone od dnia założenia konta; zamówienia
+            historyczne pobrane przy pierwszym imporcie nie zmniejszają puli.
           </p>
           <p>
-            Opłaty naliczamy dopiero po zakończeniu triala. Cennik jest netto i zależy od liczby zamówień
-            w miesiącu: do 200 zamówień 0 zł, do 1000 zamówień 99 zł rocznie,
-            do 5000 zamówień 299 zł rocznie, do 25 000 zamówień 499 zł rocznie,
-            powyżej 25 000 zamówień – wycena indywidualna po kontakcie. Pakiety płatne są opłacane rocznie z góry.
+            Po wykorzystaniu puli konto korzysta bez opłat z limitu 200 zamówień w miesiącu kalendarzowym.
+            Wyższe limity dają pakiety roczne (ceny netto): do 1000 zamówień miesięcznie 99 zł rocznie,
+            do 5000 – 299 zł rocznie, do 25 000 – 499 zł rocznie, powyżej 25 000 – wycena indywidualna
+            po kontakcie.
           </p>
           <p>
-            Jeżeli po zakończeniu okresu próbnego nie zaakceptujesz pakietu płatnego, możemy
-            wstrzymać nowe automatyczne synchronizacje. Historyczne dane mogą pozostać widoczne
-            w zakresie technicznie dostępnym w aplikacji, chyba że poprosisz o usunięcie konta
-            lub danych.
+            Przekroczenie limitu nie wstrzymuje działania aplikacji ani pobierania danych. Wysyłamy wtedy
+            przypomnienie w aplikacji i e-mailem, nie częściej niż raz w miesiącu. Jeżeli limit jest
+            przekraczany stale, możemy zaproponować pakiet odpowiadający liczbie zamówień.
+          </p>
+          <p>
+            Konta założone przed wejściem w życie tej wersji regulaminu zachowują dotychczasowe warunki
+            (30 dni okresu próbnego i akceptacja pakietu płatnego w zakładce Rozliczenia), chyba że wybiorą
+            pakiet roczny. Jeżeli takie konto po okresie próbnym nie zaakceptuje pakietu płatnego, możemy
+            wstrzymać nowe automatyczne synchronizacje; dane historyczne pozostają widoczne, chyba że
+            poprosisz o usunięcie konta lub danych.
           </p>
         </Section>
 
         <Section title="9. Faktury i płatności">
           <p>
-            Faktury wystawiamy za okresy miesięczne, na podstawie danych widocznych w aplikacji i danych
-            do faktury podanych w ustawieniach. Pierwszy okres płatny po trialu może być liczony
-            proporcjonalnie do liczby dni po zakończeniu triala.
+            Pakiet roczny zamawiasz w zakładce Rozliczenia po zaakceptowaniu regulaminu. Na podstawie danych
+            rozliczeniowych z ustawień wystawiamy fakturę z terminem płatności 7 dni. Pakiet obowiązuje
+            12 miesięcy od dnia zaksięgowania płatności.
           </p>
           <p>
-            Do czasu uruchomienia automatycznych płatności status opłacenia faktury może być oznaczany
-            ręcznie przez operatora.
+            Odnowienie zamówione w ostatnich 30 dniach pakietu zaczyna się w dniu następującym po jego końcu.
+            Zmiana na wyższy pakiet obowiązuje od dnia opłacenia faktury za nowy pakiet. Po wygaśnięciu
+            pakietu konto wraca do darmowego limitu 200 zamówień miesięcznie.
           </p>
           <p>
-            Ceny podane w cenniku są kwotami netto. Do faktury doliczany jest VAT zgodnie
-            z obowiązującymi przepisami. Użytkownik odpowiada za aktualność NIP, nazwy firmy,
-            adresu i innych danych rozliczeniowych.
-          </p>
-          <p>
-            W przypadku opóźnienia w płatności możemy przypomnieć o zaległości, ograniczyć
-            automatyczne synchronizacje, zawiesić dostęp do wybranych funkcji albo rozwiązać
-            świadczenie Usługi po wcześniejszym kontakcie z użytkownikiem.
+            Status opłacenia oznacza operator po otrzymaniu przelewu. Ceny są kwotami netto, do faktury
+            doliczamy VAT zgodnie z przepisami. Odpowiadasz za aktualność NIP, nazwy firmy, adresu
+            i adresu e-mail do faktur.
           </p>
         </Section>
 

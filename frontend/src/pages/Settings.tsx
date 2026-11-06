@@ -29,7 +29,7 @@ export default function Settings() {
   const [totpMessage, setTotpMessage] = useState('')
   const [totpError, setTotpError] = useState('')
   const [searchParams, setSearchParams] = useSearchParams()
-  const [activeTab, setActiveTab] = useState<'accounts' | 'billing' | 'preferences' | 'security'>('accounts')
+  const [activeTab, setActiveTab] = useState<'accounts' | 'billing' | 'preferences' | 'security'>(() => searchParams.get('tab') === 'billing' ? 'billing' : 'accounts')
   const connectedId = searchParams.get('connected')
   const allegroError = searchParams.get('allegro_error')
   const allegroErrorDescription = searchParams.get('allegro_error_description')

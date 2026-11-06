@@ -1,5 +1,5 @@
 from app.models.account import Account, AllegroAccountClaim
-from app.models.billing_profile import TenantBillingProfile, TenantInvoice, TenantPaidPlanAcceptance
+from app.models.billing_profile import TenantBillingProfile, TenantInvoice, TenantPaidPlanAcceptance, TenantSubscription, TenantUsageNotice
 from app.models.tenant import Tenant
 from app.models.sku import SkuMaster, SkuAlias
 from app.models.raw_data import OrderRaw, BillingRaw, OfferCache, StockSetting, SyncLog
@@ -11,6 +11,8 @@ __all__ = [
     "TenantBillingProfile",
     "TenantInvoice",
     "TenantPaidPlanAcceptance",
+    "TenantSubscription",
+    "TenantUsageNotice",
     "Tenant",
     "SkuMaster",
     "SkuAlias",

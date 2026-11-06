@@ -53,6 +53,8 @@ export default function AdminTenants() {
             <tr>
               <th className="px-3 py-2">Nazwa</th>
               <th className="px-3 py-2">Status</th>
+              <th className="px-3 py-2">Schemat</th>
+              <th className="px-3 py-2">Pula / pakiet</th>
               <th className="px-3 py-2">Użytkownicy</th>
               <th className="px-3 py-2">Konta Allegro</th>
               <th className="px-3 py-2">SKU</th>
@@ -62,8 +64,8 @@ export default function AdminTenants() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800 bg-slate-900 text-slate-200">
-            {isLoading && <tr><td className="px-3 py-4" colSpan={8}>Ładowanie...</td></tr>}
-            {!isLoading && data?.items.length === 0 && <tr><td className="px-3 py-4" colSpan={8}>Brak kont.</td></tr>}
+            {isLoading && <tr><td className="px-3 py-4" colSpan={10}>Ładowanie...</td></tr>}
+            {!isLoading && data?.items.length === 0 && <tr><td className="px-3 py-4" colSpan={10}>Brak kont.</td></tr>}
             {data?.items.map(tenant => (
               <tr key={tenant.id}>
                 <td className="px-3 py-2">
@@ -75,6 +77,8 @@ export default function AdminTenants() {
                     {tenant.is_active ? 'aktywny' : 'nieaktywny'}
                   </span>
                 </td>
+                <td className="px-3 py-2">{tenant.billing_scheme === 'pool_v2' ? 'Pula' : tenant.billing_scheme === 'legacy_trial' ? 'Trial' : '–'}</td>
+                <td className="px-3 py-2">{tenant.billing_scheme === 'pool_v2' ? <><div>Wykorzystano: {tenant.pool_used ?? '–'}, pozostało: {tenant.pool_remaining ?? '–'}</div><div>{tenant.active_tier ?? 'Darmowy'}{tenant.period_end ? ` do ${tenant.period_end}` : ''}</div></> : '–'}</td>
                 <td className="px-3 py-2">{tenant.users_count}</td>
                 <td className="px-3 py-2">{tenant.accounts_count}</td>
                 <td className="px-3 py-2">{tenant.sku_count}</td>
@@ -84,7 +88,7 @@ export default function AdminTenants() {
                   <div className="mt-1 text-slate-300">{tenant.previous_month_orders}</div>
                   <div className="text-[11px] text-slate-500">{monthLabel(tenant.previous_month)}</div>
                 </td>
-                <td className="px-3 py-2">{tenant.last_activity_at?.slice(0, 16).replace('T', ' ') || '—'}</td>
+                <td className="px-3 py-2">{tenant.last_activity_at?.slice(0, 16).replace('T', ' ') || '–'}</td>
                 <td className="px-3 py-2">
                   <div className="flex flex-wrap gap-2">
                     <button

@@ -45,6 +45,13 @@ def test_imports_allowed_by_deployment_mode(monkeypatch):
     ("put", "/api/v1/billing/profile"),
     ("get", "/api/v1/billing/vat-lookup/1234567890"),
     ("post", "/api/v1/billing/paid-plan/accept"),
+    ("post", "/api/v1/billing/subscription/request"),
+    ("post", "/api/v1/billing/subscription/1/cancel"),
+    ("get", "/api/v1/admin/subscriptions"),
+    ("post", "/api/v1/admin/subscriptions/1/invoice"),
+    ("post", "/api/v1/admin/subscriptions/1/manual-invoice"),
+    ("post", "/api/v1/admin/subscriptions/1/mark-paid"),
+    ("post", "/api/v1/admin/subscriptions/1/cancel"),
 ])
 def test_hosted_routes_hidden_in_selfhosted(monkeypatch, authed_client, method, path):
     """Authenticated request reaches routing, so the 404 comes from require_hosted."""

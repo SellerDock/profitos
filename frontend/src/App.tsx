@@ -22,6 +22,7 @@ import AdminLayout from './pages/admin/AdminLayout'
 import AdminWaitlist from './pages/admin/AdminWaitlist'
 import AdminTenants from './pages/admin/AdminTenants'
 import AdminRevenue from './pages/admin/AdminRevenue'
+import AdminSubscriptions from './pages/admin/AdminSubscriptions'
 import AdminHealth from './pages/admin/AdminHealth'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { FinancialVaultProvider } from './context/FinancialVaultContext'
@@ -116,6 +117,7 @@ export default function App() {
             <Route path="waitlist" element={<AdminWaitlist />} />
             <Route path="tenants" element={<AdminTenants />} />
             <Route path="revenue" element={<AdminRevenue />} />
+            <Route path="subscriptions" element={<AdminSubscriptions />} />
             <Route path="health" element={<AdminHealth />} />
             <Route path="system-health" element={<Navigate to="/admin/health" replace />} />
           </Route>

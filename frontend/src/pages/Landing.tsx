@@ -120,7 +120,7 @@ const faqItems = [
   },
   {
     q: 'Czy jest okres próbny?',
-    a: 'Tak. Każde konto ma 30 dni za darmo, bez zobowiązań. Do 200 zamówień miesięcznie ProfitOS pozostaje darmowy również później.',
+    a: 'Tak. Otrzymujesz 1000 zamówień za darmo na start, potem do 200 zamówień miesięcznie bez opłat.',
   },
   {
     q: 'Czy ProfitOS jest darmowy?',
@@ -245,7 +245,7 @@ export default function Landing() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/register" className="rounded bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-500">
-              Rozpocznij 30 dni za darmo
+              Zacznij za darmo
             </Link>
             <a href={SOURCE_REPO_URL} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-2 rounded border px-5 py-3 text-sm font-semibold ${
               isDark
@@ -391,7 +391,7 @@ export default function Landing() {
         <div className={`rounded-lg border p-6 shadow-sm ${panelClass}`}>
           <h2 className={`mb-2 text-2xl font-bold ${headingClass}`}>Cennik</h2>
           <p className={`mb-6 text-sm leading-6 ${mutedClass}`}>
-            30 dni za darmo dla każdego konta. Potem wybierasz pakiet roczny według liczby zamówień w miesiącu.
+            1000 zamówień za darmo na start, potem do 200 zamówień miesięcznie bez opłat. Możesz wybrać pakiet roczny według liczby zamówień.
           </p>
           <div className="grid gap-3 md:grid-cols-5">
             {pricing.map(([label, price, note]) => (

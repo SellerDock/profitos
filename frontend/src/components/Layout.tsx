@@ -35,6 +35,7 @@ import { THEME_NAME, useTheme } from '../context/ThemeContext'
 import { FINANCIAL_DISPLAY_LABEL, useFinancialDisplayMode } from '../context/FinancialDisplayModeContext'
 import TerminalStatusBar from './TerminalStatusBar'
 import AppUpdateBanner from './AppUpdateBanner'
+import SubscriptionBanner from './SubscriptionBanner'
 import { productName } from '../config/brand'
 import { BrandMark } from './BrandLogo'
 
@@ -258,6 +259,7 @@ export default function Layout({ children }: { children?: ReactNode }) {
         </header>
         <main className="min-w-0 flex-1 overflow-auto px-5 pt-5 pb-24 lg:px-7 lg:pb-5">
           <AppUpdateBanner />
+          {!user?.is_operator && <SubscriptionBanner />}
           {children ?? <Outlet />}
         </main>
         {theme === 'dark' && <TerminalStatusBar />}

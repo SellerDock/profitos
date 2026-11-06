@@ -28,6 +28,8 @@ def imports_allowed(db: Session, tenant: Tenant, today: date | None = None) -> b
         return False
     if is_selfhosted():
         return True
+    if tenant.billing_scheme == "pool_v2":
+        return True
     anchor = today or date.today()
     if anchor < trial_ends_at(tenant, anchor):
         return True

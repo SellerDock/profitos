@@ -1,11 +1,9 @@
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime
 from decimal import Decimal
-from typing import Any, Literal
+from typing import Any
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from pydantic import BaseModel
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.config import is_selfhosted
@@ -13,12 +11,14 @@ from app.core.deployment import require_hosted
 from app.core.tenant import TenantScope, get_scope
 from app.core.database import get_db
 from app.core.legal import TERMS_VERSION
-from app.models.billing_profile import TenantBillingProfile, TenantInvoice, TenantPaidPlanAcceptance
+from app.models.billing_profile import TenantBillingProfile, TenantInvoice, TenantPaidPlanAcceptance, TenantSubscription
 from app.models.raw_data import BillingTypeLabel
-from app.models.raw_data import OrderRaw
 from app.models.tenant import Tenant
 from app.schemas.strict import StrictMutationModel
 from app.services.billing_state import has_paid_plan_acceptance, imports_allowed, trial_ends_at
+from app.services.email import send_subscription_request_admin_email
+from app.services.pricing import PRICING_TIERS, PricingTier
+from app.services.usage import orders_in_range, usage_state
 
 router = APIRouter(prefix="/billing", tags=["billing"])
 
@@ -39,24 +39,6 @@ class BillingProfilePayload(StrictMutationModel):
 class PaidPlanAcceptancePayload(StrictMutationModel):
     terms_accepted: bool
     terms_version: str
-
-
-class PricingTier(BaseModel):
-    code: str
-    label: str
-    max_orders: int | None
-    price_pln: int
-    billing_period: Literal["year", "free"]
-    is_custom: bool = False
-
-
-PRICING_TIERS = [
-    PricingTier(code="free_200", label="Do 200 zamówień", max_orders=200, price_pln=0, billing_period="free"),
-    PricingTier(code="year_1000", label="Do 1000 zamówień", max_orders=1000, price_pln=99, billing_period="year"),
-    PricingTier(code="year_5000", label="Do 5000 zamówień", max_orders=5000, price_pln=299, billing_period="year"),
-    PricingTier(code="year_25000", label="Do 25 000 zamówień", max_orders=25000, price_pln=499, billing_period="year"),
-    PricingTier(code="custom", label="Powyżej 25 000 zamówień", max_orders=None, price_pln=0, billing_period="year", is_custom=True),
-]
 
 
 @router.get("/types")
@@ -126,6 +108,8 @@ def subscription(scope: TenantScope = Depends(get_scope)):
     if is_selfhosted():
         return {
             "deployment_mode": "selfhosted",
+            "billing_scheme": None,
+            "usage": None,
             "trial_started_at": None,
             "trial_ends_at": None,
             "trial_active": None,
@@ -158,12 +142,14 @@ def subscription(scope: TenantScope = Depends(get_scope)):
     )
     return {
         "deployment_mode": "hosted",
-        "trial_started_at": trial_started.isoformat(),
-        "trial_ends_at": trial_ends.isoformat(),
-        "trial_active": today < trial_ends,
+        "billing_scheme": tenant.billing_scheme,
+        "usage": usage_state(scope.db, tenant, today),
+        "trial_started_at": trial_started.isoformat() if tenant.billing_scheme != "pool_v2" else None,
+        "trial_ends_at": trial_ends.isoformat() if tenant.billing_scheme != "pool_v2" else None,
+        "trial_active": today < trial_ends if tenant.billing_scheme != "pool_v2" else None,
         "terms_version": TERMS_VERSION,
         "paid_plan_accepted": paid_plan_accepted,
-        "imports_paused": not imports_allowed(scope.db, tenant, today),
+        "imports_paused": not imports_allowed(scope.db, tenant, today) if tenant.billing_scheme != "pool_v2" else False,
         "current_month": current_month.isoformat(),
         "current_month_orders": current_orders,
         "previous_month": previous_month.isoformat(),
@@ -186,6 +172,68 @@ def subscription(scope: TenantScope = Depends(get_scope)):
             for invoice in invoices
         ],
     }
+
+
+class SubscriptionRequestPayload(StrictMutationModel):
+    tier_code: str
+    terms_version: str
+
+
+@router.post("/subscription/request", dependencies=[Depends(require_hosted)])
+def request_subscription(data: SubscriptionRequestPayload, request: Request, scope: TenantScope = Depends(get_scope)):
+    tier = next((t for t in PRICING_TIERS if t.code == data.tier_code and t.billing_period == "year" and not t.is_custom), None)
+    if not tier:
+        raise HTTPException(422, "Nieprawidłowy pakiet")
+    if data.terms_version != TERMS_VERSION:
+        raise HTTPException(409, "Nieaktualna wersja regulaminu")
+    # Serialize requests for the same tenant, including acceptance creation.
+    scope.db.query(Tenant).filter(Tenant.id == scope.tenant_id).with_for_update().one()
+    profile = scope.db.query(TenantBillingProfile).filter_by(tenant_id=scope.tenant_id).first()
+    if not profile or any(not (getattr(profile, field) or "").strip() for field in ("company_name", "nip", "street", "postal_code", "city", "invoice_email")):
+        raise HTTPException(409, "billing_profile_incomplete")
+    pending = scope.db.query(TenantSubscription).filter(TenantSubscription.tenant_id == scope.tenant_id, TenantSubscription.status.in_(("pending_invoice", "invoiced"))).first()
+    if pending:
+        raise HTTPException(409, "subscription_pending")
+    today = date.today()
+    actives = scope.db.query(TenantSubscription).filter_by(tenant_id=scope.tenant_id, status="active").all()
+    current = next((a for a in actives if a.period_start and a.period_start <= today <= a.period_end), None)
+    if any(a.period_start and a.period_start > today for a in actives):
+        raise HTTPException(409, "subscription_renewed")
+    if current:
+        active_tier = next((t for t in PRICING_TIERS if t.code == current.tier_code), None)
+        is_upgrade = bool(active_tier and active_tier.max_orders is not None and tier.max_orders > active_tier.max_orders)
+        in_renewal_window = (current.period_end - today).days <= 30
+        if not (is_upgrade or in_renewal_window):
+            raise HTTPException(409, "subscription_active")
+    sub = TenantSubscription(tenant_id=scope.tenant_id, tier_code=tier.code, price_pln=tier.price_pln,
+                             status="pending_invoice", requested_by_user_id=scope.user.id, terms_version=data.terms_version)
+    scope.db.add(sub)
+    if not scope.db.query(TenantPaidPlanAcceptance).filter_by(tenant_id=scope.tenant_id, terms_version=data.terms_version).first():
+        scope.db.add(TenantPaidPlanAcceptance(tenant_id=scope.tenant_id, user_id=scope.user.id,
+            terms_version=data.terms_version, ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent")))
+    scope.db.commit()
+    scope.db.refresh(sub)
+    try:
+        send_subscription_request_admin_email(subscription=sub, profile=profile)
+    except Exception:
+        # The order is already saved; a mail failure must not encourage duplicate orders.
+        import logging
+        logging.getLogger(__name__).warning("Nie udało się wysłać powiadomienia o zamówieniu %s", sub.id)
+    return {"id": sub.id, "status": sub.status, "tier_code": sub.tier_code, "price_pln": sub.price_pln}
+
+
+@router.post("/subscription/{subscription_id}/cancel", dependencies=[Depends(require_hosted)])
+def cancel_subscription(subscription_id: int, scope: TenantScope = Depends(get_scope)):
+    sub = scope.db.query(TenantSubscription).filter_by(id=subscription_id, tenant_id=scope.tenant_id).with_for_update().first()
+    if not sub:
+        raise HTTPException(404, "Nie znaleziono subskrypcji")
+    if sub.status != "pending_invoice":
+        raise HTTPException(409, "Nie można anulować subskrypcji")
+    sub.status = "cancelled"
+    sub.cancelled_at = datetime.now(UTC).replace(tzinfo=None)
+    scope.db.commit()
+    return {"id": sub.id, "status": sub.status}
 
 
 @router.post("/paid-plan/accept", dependencies=[Depends(require_hosted)])
@@ -283,16 +331,7 @@ def _split_address(address: str) -> dict[str, str | None]:
 
 
 def _orders_count(scope: TenantScope, start: date, end: date) -> int:
-    return int(
-        scope.db.query(func.count(func.distinct(OrderRaw.order_id)))
-        .filter(
-            OrderRaw.tenant_id == scope.tenant_id,
-            OrderRaw.bought_at >= datetime.combine(start, datetime.min.time()),
-            OrderRaw.bought_at < datetime.combine(end, datetime.min.time()),
-        )
-        .scalar()
-        or 0
-    )
+    return orders_in_range(scope.db, scope.tenant_id, start, end)
 
 
 def _tier_for_orders(orders: int) -> PricingTier:

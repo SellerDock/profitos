@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import smtplib
-from datetime import datetime
+from datetime import date, datetime
 from email.message import EmailMessage
 from email.utils import formataddr
 
@@ -157,7 +157,7 @@ def send_trial_ended_paid_plan_email(
         f"Regulamin: {terms_url}\n\n"
         "Opłata zostanie naliczona dopiero po zakończeniu triala, według liczby zamówień "
         "i cennika widocznego w panelu. Faktury wystawiamy za okresy miesięczne.\n\n"
-        "Jeśli nie chcesz kontynuować, nie musisz nic robić — nowe synchronizacje Allegro "
+        "Jeśli nie chcesz kontynuować, nie musisz nic robić – nowe synchronizacje Allegro "
         "zostaną wstrzymane po trialu.\n\n"
         "Pozdrawiamy,\n"
         f"{settings.BRAND_PRODUCT_NAME}"
@@ -170,3 +170,66 @@ def send_trial_ended_paid_plan_email(
     if sent:
         logger.info("trial ended paid plan email sent to=%s tenant=%s", to_email, tenant_name)
     return sent
+
+
+def _tier_offer(tier) -> str:
+    if tier.is_custom:
+        return f"{tier.label} – cena ustalana indywidualnie"
+    return f"{tier.label} – {tier.price_pln} zł netto rocznie"
+
+
+def send_usage_over_limit_email(*, to_email: str, tenant_name: str, subscription_url: str,
+                                month_orders: int, monthly_limit: int, tier) -> bool:
+    return _send_plain_email(
+        to_email=to_email, subject=f"{settings.BRAND_PRODUCT_NAME}: przekroczony limit zamówień",
+        body=(f"Dzień dobry,\n\nkonto {tenant_name} ma w tym miesiącu {month_orders} zamówień "
+              f"przy limicie {monthly_limit}. Panel i import działają dalej bez przerwy.\n\n"
+              f"Sprawdź pasujący pakiet: {_tier_offer(tier)}.\n{subscription_url}\n\n"
+              f"Pozdrawiamy,\n{settings.BRAND_PRODUCT_NAME}"),
+    )
+
+
+def send_upgrade_suggestion_email(*, to_email: str, tenant_name: str, subscription_url: str,
+                                  month_orders: int, monthly_limit: int, tier) -> bool:
+    return _send_plain_email(
+        to_email=to_email, subject=f"{settings.BRAND_PRODUCT_NAME}: propozycja zmiany pakietu",
+        body=(f"Dzień dobry,\n\nkonto {tenant_name} regularnie przekracza limit {monthly_limit} zamówień. "
+              f"W tym miesiącu liczba zamówień wynosi {month_orders}. "
+              "Panel i import działają dalej bez przerwy.\n\n"
+              f"Sprawdź proponowany pakiet: {_tier_offer(tier)}.\n{subscription_url}\n\n"
+              f"Pozdrawiamy,\n{settings.BRAND_PRODUCT_NAME}"),
+    )
+
+
+def send_renewal_reminder_email(*, to_email: str, tenant_name: str, subscription_url: str,
+                                period_end: date, tier_label: str) -> bool:
+    return _send_plain_email(
+        to_email=to_email, subject=f"{settings.BRAND_PRODUCT_NAME}: przypomnienie o odnowieniu pakietu",
+        body=(f"Dzień dobry,\n\npakiet {tier_label} dla konta {tenant_name} kończy się "
+              f"{period_end.strftime('%d.%m.%Y')}. Po wygaśnięciu konto przejdzie na darmowe "
+              f"200 zamówień miesięcznie.\n\nOdnowienie pakietu: {subscription_url}\n\n"
+              f"Pozdrawiamy,\n{settings.BRAND_PRODUCT_NAME}"),
+    )
+
+
+def send_subscription_expired_email(*, to_email: str, tenant_name: str, subscription_url: str,
+                                    period_end: date, tier_label: str) -> bool:
+    return _send_plain_email(
+        to_email=to_email, subject=f"{settings.BRAND_PRODUCT_NAME}: pakiet wygasł",
+        body=(f"Dzień dobry,\n\npakiet {tier_label} dla konta {tenant_name} wygasł "
+              f"{period_end.strftime('%d.%m.%Y')}. Konto przechodzi na darmowe "
+              f"200 zamówień miesięcznie.\n\nWybierz pakiet: {subscription_url}\n\n"
+              f"Pozdrawiamy,\n{settings.BRAND_PRODUCT_NAME}"),
+    )
+
+
+def send_subscription_request_admin_email(*, subscription, profile) -> bool:
+    if not settings.waitlist_admin_email:
+        return False
+    return _send_plain_email(
+        to_email=settings.waitlist_admin_email,
+        subject=f'Nowe zamówienie pakietu {settings.BRAND_PRODUCT_NAME}',
+        body=(f'Firma: {profile.company_name}\nNIP: {profile.nip}\n'
+              f'Pakiet: {subscription.tier_code}\nCena netto: {subscription.price_pln} zł\n'
+              f'ID zamówienia: {subscription.id}\n'),
+    )

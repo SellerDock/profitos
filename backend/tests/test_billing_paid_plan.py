@@ -31,6 +31,7 @@ def paid_plan_fixture(app_client, seeded_db):
         name="Paid Plan Tenant",
         slug="paid-plan-tenant",
         is_active=True,
+        billing_scheme="legacy_trial",
         created_at=datetime.utcnow() - timedelta(days=31),
     )
     db.add(tenant)

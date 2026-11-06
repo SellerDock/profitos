@@ -2,6 +2,20 @@
 
 Format opiera się na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).
 
+## [1.1.0] – 2026-11-07
+
+### Dodano
+
+- Tryb `hosted`: pula 1000 zamówień na start dla nowych firm, potem darmowe 200 zamówień miesięcznie; firmy istniejące zachowują okres próbny.
+- Pakiety roczne: zamówienie przez klienta, faktura w iFirmie lub numer wpisany ręcznie, oznaczanie płatności, wyższy pakiet od dnia opłaty i odnowienie od końca bieżącego.
+- Przypomnienia e-mail i baner w panelu: przekroczenie limitu, propozycja wyższego pakietu, odnowienie i wygaśnięcie pakietu.
+- Panel operatora „Zamówienia pakietów” oraz przychód z pakietów rocznych.
+
+### Zmieniono
+
+- Regulamin w wersji 2026-11-07 (pula startowa, pakiety roczne, płatności).
+- Zadania harmonogramu z `misfire_grace_time`, żeby spóźniony przebieg nie był pomijany.
+
 ## [1.0.1] – 2026-11-06
 
 ### Poprawiono

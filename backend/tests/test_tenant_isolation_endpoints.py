@@ -977,3 +977,31 @@ def test_support_ticket_uses_current_tenant_and_user(two_tenants, monkeypatch):
     assert len(calls) == 1
     assert calls[0]['tenant_id'] == tenant_b
     assert calls[0]['from_user_email'] == user_b.email
+
+
+@pytest.mark.contract
+def test_subscription_request_and_cancel_are_tenant_scoped(two_tenants, monkeypatch):
+    from app.core.config import settings
+    from app.core.legal import TERMS_VERSION
+    from app.models.billing_profile import TenantBillingProfile, TenantPaidPlanAcceptance, TenantSubscription
+
+    monkeypatch.setattr(settings, 'DEPLOYMENT_MODE', 'hosted')
+    db = two_tenants.db
+    tenant_id = db.get(Account, two_tenants.t2_account_id).tenant_id
+    profile = TenantBillingProfile(tenant_id=tenant_id, company_name='Firma', nip='1234567890',
+        street='Ulica 1', postal_code='00-001', city='Warszawa', invoice_email='a@example.com')
+    db.add(profile)
+    db.commit()
+    try:
+        response = two_tenants.client_t2.post('/api/v1/billing/subscription/request',
+            json={'tier_code': 'year_1000', 'terms_version': TERMS_VERSION})
+        assert response.status_code == 200
+        sub_id = response.json()['id']
+        assert two_tenants.client_t1.post(f'/api/v1/billing/subscription/{sub_id}/cancel').status_code == 404
+        db.expire_all()
+        assert db.get(TenantSubscription, sub_id).status == 'pending_invoice'
+    finally:
+        db.query(TenantSubscription).filter_by(tenant_id=tenant_id).delete()
+        db.query(TenantPaidPlanAcceptance).filter_by(tenant_id=tenant_id).delete()
+        db.query(TenantBillingProfile).filter_by(tenant_id=tenant_id).delete()
+        db.commit()

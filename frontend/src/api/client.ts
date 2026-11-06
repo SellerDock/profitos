@@ -333,6 +333,11 @@ export interface AdminTenant {
   current_month_orders: number
   previous_month_orders: number
   last_activity_at: string | null
+  billing_scheme: 'legacy_trial' | 'pool_v2' | null
+  pool_used: number | null
+  pool_remaining: number | null
+  active_tier: string | null
+  period_end: string | null
 }
 
 export interface AdminPricingTier {
@@ -359,8 +364,11 @@ export interface AdminRevenueTenant {
   slug: string
   is_active: boolean
   created_at: string | null
-  trial_ends_at: string
-  trial_active: boolean
+  trial_ends_at: string | null
+  trial_active: boolean | null
+  billing_scheme: 'legacy_trial' | 'pool_v2' | null
+  annual_subscription_revenue_net: string
+  monthly_subscription_revenue_net: string
   paid_plan_accepted: boolean
   current_month_orders: number
   previous_month_orders: number
@@ -375,6 +383,8 @@ export interface AdminRevenueTenant {
 }
 
 export interface AdminRevenue {
+  annual_subscription_revenue_net: string
+  monthly_subscription_revenue_net: string
   current_month: string
   previous_month: string
   pricing_net: boolean
@@ -385,6 +395,13 @@ export interface AdminRevenue {
     active_customers: AdminRevenueSummary
   }
   items: AdminRevenueTenant[]
+}
+
+export interface AdminSubscription {
+  id: number; tenant_id: number; company_name: string | null; nip: string | null
+  tier_code: string; price_pln: number; status: string; invoice_number: string | null
+  ifirma_invoice_id: string | null; requested_at: string | null; invoiced_at: string | null
+  paid_at: string | null; period_start: string | null; period_end: string | null; cancelled_at: string | null
 }
 
 export interface SystemHealth {
@@ -417,6 +434,11 @@ export const adminApi = {
   rejectWaitlist: (entryId: number, data: { reason: string }) =>
     api.post<{ status: 'rejected' }>(`/admin/waitlist/${entryId}/reject`, data).then(r => r.data),
   tenants: () => api.get<{ items: AdminTenant[] }>('/admin/tenants').then(r => r.data),
+  subscriptions: (status?: string) => api.get<{ items: AdminSubscription[] }>('/admin/subscriptions', { params: { status: status || undefined } }).then(r => r.data),
+  invoiceSubscription: (id: number) => api.post(`/admin/subscriptions/${id}/invoice`).then(r => r.data),
+  manualSubscriptionInvoice: (id: number, invoice_number: string) => api.post(`/admin/subscriptions/${id}/manual-invoice`, { invoice_number }).then(r => r.data),
+  markSubscriptionPaid: (id: number, paid_on: string) => api.post(`/admin/subscriptions/${id}/mark-paid`, { paid_on }).then(r => r.data),
+  cancelSubscription: (id: number) => api.post(`/admin/subscriptions/${id}/cancel`).then(r => r.data),
   revenue: () => api.get<AdminRevenue>('/admin/revenue').then(r => r.data),
   deactivateTenant: (tenantId: number) => api.post<{ status: string }>(`/admin/tenants/${tenantId}/deactivate`).then(r => r.data),
   reactivateTenant: (tenantId: number) => api.post<{ status: string }>(`/admin/tenants/${tenantId}/reactivate`).then(r => r.data),
@@ -586,10 +608,21 @@ export interface TenantInvoice {
   pdf_url: string | null
 }
 
+export interface SubscriptionUsage {
+  scheme: 'legacy_trial' | 'pool_v2'; pool_total: number; pool_used: number; pool_remaining: number
+  pool_active: boolean; month: string; month_orders: number; monthly_limit: number | null
+  over_limit: boolean
+  active_subscription: { tier_code: string; period_start: string; period_end: string } | null
+  pending_subscription: { id: number; tier_code: string; status: 'pending_invoice' | 'invoiced'; invoice_number: string | null } | null
+  upgrade_suggested: boolean; suggested_tier_code: string | null
+}
+
 export interface SubscriptionStatus {
-  trial_started_at: string
-  trial_ends_at: string
-  trial_active: boolean
+  billing_scheme: 'legacy_trial' | 'pool_v2' | null
+  usage: SubscriptionUsage | null
+  trial_started_at: string | null
+  trial_ends_at: string | null
+  trial_active: boolean | null
   terms_version: string
   paid_plan_accepted: boolean
   imports_paused: boolean
@@ -607,6 +640,8 @@ export const billingApi = {
   updateProfile: (data: BillingProfile) => api.put<BillingProfile>('/billing/profile', data).then(r => r.data),
   vatLookup: (nip: string) => api.get<BillingProfile>(`/billing/vat-lookup/${encodeURIComponent(nip)}`).then(r => r.data),
   subscription: () => api.get<SubscriptionStatus>('/billing/subscription').then(r => r.data),
+  requestSubscription: (tier_code: string, terms_version: string) => api.post<{ id: number; status: string; tier_code: string; price_pln: number }>('/billing/subscription/request', { tier_code, terms_version }).then(r => r.data),
+  cancelSubscription: (id: number) => api.post(`/billing/subscription/${id}/cancel`).then(r => r.data),
   acceptPaidPlan: (data: { terms_accepted: boolean; terms_version: string }) =>
     api.post<{ paid_plan_accepted: boolean; terms_version: string; accepted_at: string | null }>(
       '/billing/paid-plan/accept',

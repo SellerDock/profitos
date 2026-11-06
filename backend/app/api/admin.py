@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+
+import httpx
 import logging
 import re
 import secrets
@@ -18,6 +20,7 @@ from app.core.deployment import require_hosted
 from app.core.database import get_db
 from app.core.session import SESSION_TTL
 from app.api.billing import _add_months, _tier_for_orders
+from app.models.billing_profile import TenantBillingProfile, TenantSubscription
 from app.models.account import Account
 from app.models.raw_data import OrderRaw
 from app.models.sku import SkuMaster
@@ -26,6 +29,10 @@ from app.models.user import ActivationToken, User, UserSession, WaitlistEntry
 from app.schemas.strict import StrictMutationModel
 from app.services.billing_state import has_paid_plan_acceptance, trial_ends_at
 from app.services.email import send_activation_email
+from app.services.usage import active_subscription, orders_in_range, usage_state
+from app.services.ifirma import IFirmaClient, IFirmaNotConfigured
+from app.services.subscription_invoice import build_subscription_invoice_payload
+from app.services.pricing import PRICING_TIERS
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 logger = logging.getLogger("app.security")
@@ -89,16 +96,7 @@ def _month_start(value: date) -> date:
 
 
 def _orders_count_for_tenant(db: Session, tenant_id: int, start: date, end: date) -> int:
-    return int(
-        db.query(func.count(func.distinct(OrderRaw.order_id)))
-        .filter(
-            OrderRaw.tenant_id == tenant_id,
-            OrderRaw.bought_at >= datetime.combine(start, datetime.min.time()),
-            OrderRaw.bought_at < datetime.combine(end, datetime.min.time()),
-        )
-        .scalar()
-        or 0
-    )
+    return orders_in_range(db, tenant_id, start, end)
 
 
 def _trial_ends_at(tenant: Tenant) -> date:
@@ -230,6 +228,140 @@ def reject_waitlist_entry(
     return {"status": "rejected"}
 
 
+class ManualInvoicePayload(StrictMutationModel):
+    invoice_number: str = Field(min_length=1, max_length=64)
+
+
+class MarkPaidPayload(StrictMutationModel):
+    paid_on: date
+
+
+def _subscription_row(sub: TenantSubscription, profile: TenantBillingProfile | None) -> dict:
+    return {"id": sub.id, "tenant_id": sub.tenant_id, "company_name": profile.company_name if profile else None,
+            "nip": profile.nip if profile else None, "tier_code": sub.tier_code, "price_pln": sub.price_pln,
+            "status": sub.status, "invoice_number": sub.invoice_number, "ifirma_invoice_id": sub.ifirma_invoice_id,
+            **{name: getattr(sub, name).isoformat() if getattr(sub, name) else None for name in
+               ("requested_at", "invoiced_at", "paid_at", "period_start", "period_end", "cancelled_at")}}
+
+
+def _locked_subscription(db: Session, subscription_id: int) -> TenantSubscription:
+    sub = db.query(TenantSubscription).filter_by(id=subscription_id).with_for_update().first()
+    if not sub:
+        raise HTTPException(404, "Nie znaleziono subskrypcji")
+    return sub
+
+
+def _ifirma_invoice_number(client: IFirmaClient, invoice_id: str) -> str | None:
+    """Look up the full invoice number; the create response carries only the id."""
+    try:
+        listing = client.list_invoices(date_from=date.today().isoformat())
+    except Exception:
+        return None
+    for row in (listing.get("response") or {}).get("Wynik") or []:
+        if str(row.get("FakturaId")) == invoice_id:
+            return row.get("PelnyNumer")
+    return None
+
+
+@router.get("/subscriptions", dependencies=[Depends(require_hosted)])
+def list_subscriptions(status: str | None = None, _operator: User = Depends(require_operator), db: Session = Depends(get_db)):
+    query = db.query(TenantSubscription, TenantBillingProfile).outerjoin(TenantBillingProfile, TenantBillingProfile.tenant_id == TenantSubscription.tenant_id)
+    if status:
+        query = query.filter(TenantSubscription.status == status)
+    return {"items": [_subscription_row(sub, profile) for sub, profile in query.order_by(TenantSubscription.requested_at.desc()).all()]}
+
+
+@router.post("/subscriptions/{subscription_id}/invoice", dependencies=[Depends(require_hosted)])
+def invoice_subscription(subscription_id: int, _operator: User = Depends(require_operator), db: Session = Depends(get_db)):
+    sub = _locked_subscription(db, subscription_id)
+    if sub.status != "pending_invoice":
+        raise HTTPException(409, "Nie można wystawić faktury")
+    profile = db.query(TenantBillingProfile).filter_by(tenant_id=sub.tenant_id).first()
+    if not profile or any(not (getattr(profile, field) or "").strip() for field in ("company_name", "nip", "street", "postal_code", "city", "invoice_email")):
+        raise HTTPException(409, "billing_profile_incomplete")
+    try:
+        client = IFirmaClient()
+        response = client.create_domestic_invoice(build_subscription_invoice_payload(sub, profile, date.today()))
+    except IFirmaNotConfigured:
+        raise HTTPException(503, "iFirma nie jest skonfigurowana")
+    except httpx.HTTPError as exc:
+        # iFirma sometimes reports an error (e.g. 429) although the invoice was created.
+        logger.warning("ifirma subscription invoice failed sub=%s error=%s", sub.id, type(exc).__name__)
+        raise HTTPException(502, "iFirma nie potwierdziła wystawienia. Sprawdź w iFirmie, czy faktura powstała – jeśli tak, wpisz jej numer ręcznie zamiast wystawiać ponownie.")
+    result = response.get("response") or {}
+    if result.get("Kod") != 0:
+        raise HTTPException(502, str(result.get("Informacja") or "Błąd iFirmy"))
+    if result.get("Identyfikator") is None:
+        raise HTTPException(502, "Brak identyfikatora faktury w odpowiedzi iFirmy. Sprawdź fakturę w iFirmie i wpisz numer ręcznie.")
+    sub.ifirma_invoice_id = str(result["Identyfikator"])
+    sub.invoice_number = _ifirma_invoice_number(client, sub.ifirma_invoice_id)
+    sub.invoiced_at = _now()
+    sub.status = "invoiced"
+    db.commit()
+    return _subscription_row(sub, profile)
+
+
+@router.post("/subscriptions/{subscription_id}/manual-invoice", dependencies=[Depends(require_hosted)])
+def manual_invoice_subscription(subscription_id: int, data: ManualInvoicePayload, _operator: User = Depends(require_operator), db: Session = Depends(get_db)):
+    sub = _locked_subscription(db, subscription_id)
+    if not data.invoice_number.strip():
+        raise HTTPException(422, "Podaj numer faktury")
+    if sub.status != "pending_invoice" and not (sub.status == "invoiced" and not sub.invoice_number):
+        raise HTTPException(409, "Nie można uzupełnić numeru faktury")
+    sub.invoice_number = data.invoice_number.strip()
+    if sub.status == "pending_invoice":
+        sub.status = "invoiced"
+        sub.invoiced_at = _now()
+    db.commit()
+    return _subscription_row(sub, None)
+
+
+@router.post("/subscriptions/{subscription_id}/mark-paid", dependencies=[Depends(require_hosted)])
+def mark_subscription_paid(subscription_id: int, data: MarkPaidPayload, operator: User = Depends(require_operator), db: Session = Depends(get_db)):
+    sub = _locked_subscription(db, subscription_id)
+    if sub.status != "invoiced":
+        raise HTTPException(409, "Subskrypcja nie oczekuje na płatność")
+    old = (db.query(TenantSubscription)
+           .filter(TenantSubscription.tenant_id == sub.tenant_id, TenantSubscription.status == "active")
+           .order_by(TenantSubscription.period_end.desc()).with_for_update().first())
+    start = data.paid_on
+    if old and old.period_end >= data.paid_on:
+        old_tier = next((t for t in PRICING_TIERS if t.code == old.tier_code), None)
+        new_tier = next((t for t in PRICING_TIERS if t.code == sub.tier_code), None)
+        is_upgrade = bool(old_tier and new_tier and old_tier.max_orders is not None
+                          and new_tier.max_orders is not None and new_tier.max_orders > old_tier.max_orders)
+        if is_upgrade:
+            # Upgrade: the higher plan starts now and replaces the current one.
+            old.status = "expired"
+            old.period_end = data.paid_on - timedelta(days=1)
+            db.flush()
+        else:
+            # Renewal: the new year starts the day after the current plan ends.
+            start = old.period_end + timedelta(days=1)
+    try:
+        next_year = start.replace(year=start.year + 1)
+    except ValueError:
+        next_year = start.replace(year=start.year + 1, day=28)
+    sub.status = "active"
+    sub.paid_at = datetime.combine(data.paid_on, datetime.min.time())
+    sub.period_start = start
+    sub.period_end = next_year - timedelta(days=1)
+    sub.marked_paid_by_user_id = _created_by_id(db, operator)
+    db.commit()
+    return _subscription_row(sub, None)
+
+
+@router.post("/subscriptions/{subscription_id}/cancel", dependencies=[Depends(require_hosted)])
+def admin_cancel_subscription(subscription_id: int, _operator: User = Depends(require_operator), db: Session = Depends(get_db)):
+    sub = _locked_subscription(db, subscription_id)
+    if sub.status not in ("pending_invoice", "invoiced"):
+        raise HTTPException(409, "Nie można anulować subskrypcji")
+    sub.status = "cancelled"
+    sub.cancelled_at = _now()
+    db.commit()
+    return _subscription_row(sub, None)
+
+
 @router.get("/tenants", dependencies=[Depends(require_hosted)])
 def list_tenants(
     _operator: User = Depends(require_operator),
@@ -255,7 +387,13 @@ def list_tenants(
             """),
             {"tenant_id": tenant.id},
         ).scalar()
+        usage = usage_state(db, tenant, date.today()) if tenant.billing_scheme == "pool_v2" else None
         items.append({
+            "billing_scheme": tenant.billing_scheme,
+            "pool_used": usage["pool_used"] if usage else None,
+            "pool_remaining": usage["pool_remaining"] if usage else None,
+            "active_tier": usage["active_subscription"]["tier_code"] if usage and usage["active_subscription"] else None,
+            "period_end": usage["active_subscription"]["period_end"] if usage and usage["active_subscription"] else None,
             "id": tenant.id,
             "name": tenant.name,
             "slug": tenant.slug,
@@ -303,20 +441,29 @@ def revenue_estimate(
     current_active_total = Decimal("0.00")
     previous_active_total = Decimal("0.00")
     items = []
+    annual_subscription_total = Decimal("0.00")
 
     for tenant in tenants:
         current_orders = _orders_count_for_tenant(db, tenant.id, current_month, next_month)
         previous_orders = _orders_count_for_tenant(db, tenant.id, previous_month, current_month)
         current_tier = _tier_for_orders(current_orders)
         previous_tier = _tier_for_orders(previous_orders)
-        current_amount, current_billable_days, current_month_days = _estimate_subscription_amount_net(
-            tenant, current_orders, current_month
-        )
-        previous_amount, previous_billable_days, previous_month_days = _estimate_subscription_amount_net(
-            tenant, previous_orders, previous_month
-        )
+        annual_amount = Decimal("0.00")
+        if tenant.billing_scheme == "pool_v2":
+            current_month_days = (next_month - current_month).days
+            previous_month_days = (current_month - previous_month).days
+            active = active_subscription(db, tenant.id, date.today())
+            annual_amount = Decimal(active.price_pln) if active else Decimal("0.00")
+            current_amount = (annual_amount / 12).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            previous_amount = Decimal("0.00")
+            current_billable_days = current_month_days if active else 0
+            previous_billable_days = 0
+            annual_subscription_total += annual_amount
+        else:
+            current_amount, current_billable_days, current_month_days = _estimate_subscription_amount_net(tenant, current_orders, current_month)
+            previous_amount, previous_billable_days, previous_month_days = _estimate_subscription_amount_net(tenant, previous_orders, previous_month)
         paid_plan_accepted = has_paid_plan_acceptance(db, tenant.id)
-        trial_ends = _trial_ends_at(tenant)
+        trial_ends = _trial_ends_at(tenant) if tenant.billing_scheme != "pool_v2" else None
 
         totals["all_customers"]["customers_count"] += 1
         totals["all_customers"]["current_month_orders"] += current_orders
@@ -341,8 +488,11 @@ def revenue_estimate(
             "slug": tenant.slug,
             "is_active": tenant.is_active,
             "created_at": tenant.created_at.isoformat() if tenant.created_at else None,
-            "trial_ends_at": trial_ends.isoformat(),
-            "trial_active": date.today() < trial_ends,
+            "trial_ends_at": trial_ends.isoformat() if trial_ends else None,
+            "trial_active": date.today() < trial_ends if trial_ends else None,
+            "billing_scheme": tenant.billing_scheme,
+            "annual_subscription_revenue_net": str(annual_amount),
+            "monthly_subscription_revenue_net": str((annual_amount / 12).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
             "paid_plan_accepted": paid_plan_accepted,
             "current_month_orders": current_orders,
             "previous_month_orders": previous_orders,
@@ -365,6 +515,8 @@ def revenue_estimate(
         "current_month": current_month.isoformat(),
         "previous_month": previous_month.isoformat(),
         "pricing_net": True,
+        "annual_subscription_revenue_net": str(annual_subscription_total),
+        "monthly_subscription_revenue_net": str((annual_subscription_total / 12).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
         "operator_tenant_excluded": True,
         "active_customer_definition": "accepted_paid_plan_terms",
         "paid_invoice_statuses": [],

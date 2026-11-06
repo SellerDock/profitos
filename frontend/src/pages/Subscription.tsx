@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle, CheckCircle2, CreditCard, FileText, Lock } from 'lucide-react'
 import { billingApi, type PricingTier } from '../api/client'
+import AnnualSubscription from '../components/AnnualSubscription'
 
 function monthLabel(iso: string): string {
   return new Date(iso).toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' })
@@ -44,6 +45,7 @@ export default function Subscription() {
 
       {data && (
         <>
+          {data.billing_scheme !== 'pool_v2' && <>
           <section className="grid gap-4 md:grid-cols-3">
             <div className="apos-panel p-5">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Status</p>
@@ -55,7 +57,7 @@ export default function Subscription() {
               </div>
               <p className="mt-2 text-sm text-slate-500">
                 {data.trial_active
-                  ? `Trial trwa do ${new Date(data.trial_ends_at).toLocaleDateString('pl-PL')}.`
+                  ? `Trial trwa do ${new Date(data.trial_ends_at ?? '').toLocaleDateString('pl-PL')}.`
                   : data.paid_plan_accepted
                     ? `Aktualny próg: ${tierPrice(data.current_tier)}.`
                     : 'Zaakceptuj regulamin, żeby kontynuować synchronizację po trialu.'}
@@ -147,7 +149,10 @@ export default function Subscription() {
             </p>
           </section>
 
-          <section className="apos-panel p-5">
+          </>}
+          {data.billing_scheme === 'pool_v2' && data.usage && <PoolOverview data={data} />}
+          {data.billing_scheme !== null && <AnnualSubscription data={data} />}
+          <section className="apos-panel min-w-0 p-5">
             <h3 className="mb-4 flex items-center gap-2 font-semibold text-slate-950">
               <FileText size={16} />
               Faktury
@@ -191,4 +196,18 @@ export default function Subscription() {
       )}
     </div>
   )
+}
+
+function PoolOverview({ data }: { data: import('../api/client').SubscriptionStatus }) {
+  const usage = data.usage!
+  const active = usage.active_subscription
+  const label = (code: string) => data.pricing.find(tier => tier.code === code)?.label ?? code
+  return <>
+    <section className="grid min-w-0 gap-4 md:grid-cols-3">
+      <div className="apos-panel min-w-0 p-5"><h3 className="font-semibold">Pula na start</h3><p className="mt-3">Wykorzystano {usage.pool_used} z {usage.pool_total}</p><div className="mt-2 h-2 overflow-hidden rounded bg-slate-200"><div className="h-full bg-finance-blue" style={{ width: `${usage.pool_total ? Math.min(100, usage.pool_used / usage.pool_total * 100) : 100}%` }} /></div>{!usage.pool_active && !active && <p className="mt-2 text-sm">Darmowe 200 zamówień miesięcznie</p>}</div>
+      <div className="apos-panel min-w-0 p-5"><h3 className="font-semibold">Ten miesiąc</h3><p className="mt-3 text-2xl font-bold">{usage.month_orders}{usage.monthly_limit !== null ? ` / ${usage.monthly_limit}` : ''}</p><p className="text-sm text-slate-500">zamówień · {usage.month}</p>{usage.over_limit && <p className="mt-2 text-sm text-amber-700">Przekroczono limit – panel i import działają dalej. Wybierz pakiet.</p>}</div>
+      <div className="apos-panel min-w-0 p-5"><h3 className="font-semibold">Pakiet</h3><p className="mt-3 text-lg font-semibold">{active ? label(active.tier_code) : 'Darmowy'}</p>{active && <p className="text-sm text-slate-500">Ważny do {new Date(`${active.period_end}T00:00:00`).toLocaleDateString('pl-PL')}</p>}</div>
+    </section>
+    {usage.upgrade_suggested && <div className="apos-panel p-5 text-sm text-amber-700">Sugerujemy wyższy pakiet{usage.suggested_tier_code ? `: ${label(usage.suggested_tier_code)}` : ''}.</div>}
+  </>
 }

@@ -6,6 +6,7 @@ import { isDeploymentRouteVisible } from '../../utils/deploymentRoutes'
 const tabs = [
   { to: '/admin/waitlist', label: 'Zgłoszenia', icon: ClipboardList },
   { to: '/admin/tenants', label: 'Konta', icon: Building2 },
+  { to: '/admin/subscriptions', label: 'Pakiety', icon: Coins },
   { to: '/admin/revenue', label: 'Przychody', icon: Coins },
   { to: '/admin/health', label: 'System', icon: Activity },
 ]
@@ -13,7 +14,7 @@ const tabs = [
 export default function AdminLayout() {
   const mode = useDeploymentMode()
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto min-w-0 max-w-6xl space-y-6">
       <div>
         <p className="text-sm font-medium text-indigo-300">Panel operatora</p>
         <h1 className="mt-1 text-2xl font-bold text-white">Administracja</h1>
