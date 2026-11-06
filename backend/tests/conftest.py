@@ -77,6 +77,27 @@ _DB_URL = (
     f"{_db_name}"
 )
 
+# Guard 3: the application engine uses settings.DATABASE_URL, not the
+# POSTGRES_* variables above. Both must point at the same test database,
+# otherwise fixtures could modify a different (e.g. live) database.
+def _db_target(url: str) -> tuple[str | None, str | None]:
+    from sqlalchemy.engine import make_url
+
+    parsed = make_url(url)
+    return (parsed.host or "").lower() or None, parsed.database
+
+
+_app_target = _db_target(settings.DATABASE_URL)
+_test_target = _db_target(_DB_URL)
+if _app_target != _test_target or _app_target == ("apos-db", "apos_db"):
+    pytest.exit(
+        "\n[GUARD] DATABASE_URL aplikacji wskazuje inną bazę niż baza testowa!\n"
+        f"  Aplikacja: host={_app_target[0]!r}, baza={_app_target[1]!r}\n"
+        f"  Testy:     host={_test_target[0]!r}, baza={_test_target[1]!r}\n"
+        "  Ustaw DATABASE_URL na tę samą dedykowaną bazę testową co POSTGRES_HOST/POSTGRES_DB.",
+        returncode=3,
+    )
+
 
 
 @pytest.fixture(autouse=True)

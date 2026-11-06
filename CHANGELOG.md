@@ -2,6 +2,13 @@
 
 Format opiera się na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).
 
+## [1.1.2] – 2026-11-07
+
+### Poprawiono
+
+- Tworzenie pierwszego administratora (`bootstrap`) sprawdza adres e-mail tymi samymi regułami co logowanie. Wcześniej dało się utworzyć konto, na które nie można się zalogować, a ponowna konfiguracja była już zablokowana.
+- Testy backendu przerywają się, gdy `DATABASE_URL` aplikacji wskazuje inną bazę niż `POSTGRES_HOST`/`POSTGRES_DB` bazy testowej (#7).
+
 ## [1.1.1] – 2026-11-07
 
 ### Poprawiono

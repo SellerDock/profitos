@@ -58,6 +58,9 @@ def test_second_bootstrap_fails(bootstrap_db):
 @pytest.mark.parametrize("company,email,password", [
     ("Firma", "a@example.com", "short"),
     ("Firma", "invalid", "long-password"),
+    ("Firma", "admin@firma.invalid", "long-password"),
+    ("Firma", "admin@localhost", "long-password"),
+    ("Firma", "a b@example.com", "long-password"),
     ("  ", "a@example.com", "long-password"),
 ])
 def test_invalid_bootstrap(bootstrap_db, company, email, password):
@@ -88,3 +91,11 @@ def test_multiple_tenants_guard(bootstrap_db, monkeypatch, mode, raises):
             assert_single_tenant(bootstrap_db)
     else:
         assert_single_tenant(bootstrap_db)
+
+
+def test_bootstrap_email_accepted_by_login_model(bootstrap_db):
+    from app.api.auth import LoginRequest
+
+    user = bootstrap_instance(bootstrap_db, company_name="Firma", email=" Admin@Example.COM ",
+                              password="very-long-password")
+    LoginRequest(email=user.email, password="very-long-password")

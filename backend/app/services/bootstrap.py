@@ -2,6 +2,7 @@
 import re
 import unicodedata
 
+from email_validator import EmailNotValidError, validate_email
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
@@ -29,8 +30,12 @@ def bootstrap_instance(db: Session, *, company_name: str, email: str, password: 
     email = email.strip().lower()
     if not company_name:
         raise BootstrapError("Nazwa firmy nie może być pusta")
-    if "@" not in email:
-        raise BootstrapError("Adres e-mail musi zawierać znak @")
+    try:
+        # Same rules as pydantic EmailStr used by the login endpoint, so the
+        # created administrator can always log in.
+        validate_email(email, check_deliverability=False)
+    except EmailNotValidError as exc:
+        raise BootstrapError(f"Niepoprawny adres e-mail: {exc}") from exc
     if len(password) < 12:
         raise BootstrapError("Hasło musi mieć co najmniej 12 znaków")
 
