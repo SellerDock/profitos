@@ -1,0 +1,10 @@
+{$PROFITOS_DOMAIN} {
+    encode gzip zstd
+    reverse_proxy apos-frontend:80
+}
+
+# Do testów lokalnych zastąp powyższy blok poniższym:
+# http://localhost {
+#     encode gzip zstd
+#     reverse_proxy apos-frontend:80
+# }

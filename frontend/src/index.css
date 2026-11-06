@@ -1,0 +1,2119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #f5f7f8;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 34rem),
+    #f5f7f8;
+  color: #17202a;
+  font-feature-settings: 'tnum' 1, 'cv02' 1, 'cv03' 1;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+@layer components {
+  .apos-panel {
+    @apply rounded-lg border border-finance-line bg-white shadow-panel;
+  }
+
+  .apos-panel-muted {
+    @apply rounded-lg border border-slate-200 bg-slate-50/80;
+  }
+
+  .apos-control {
+    @apply rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm outline-none transition focus:border-finance-blue focus:ring-2 focus:ring-blue-100;
+  }
+
+  .apos-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .apos-button-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-ink-900 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .apos-button-primary:disabled {
+    background-color: #dbe3ea;
+    color: #5c6b78;
+    opacity: 1;
+  }
+
+  .apos-code-block {
+    @apply rounded-md border border-slate-300 bg-slate-950 px-3 py-2 font-mono text-xs;
+    color: #f1f5f9;
+  }
+
+  .apos-code-shell {
+    @apply overflow-hidden rounded-md border border-slate-300 bg-slate-950;
+    color: #f1f5f9;
+  }
+
+  .apos-code-row {
+    @apply grid grid-cols-[minmax(0,1fr)_auto] items-stretch border-b border-slate-800 last:border-b-0;
+  }
+
+  .apos-copy-button {
+    @apply inline-flex items-center gap-1 border-l border-slate-800 px-3 py-2 text-xs text-slate-300 transition hover:bg-slate-800 hover:text-white;
+  }
+
+  .apos-kpi {
+    @apply rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm;
+  }
+
+  .apos-table-wrap {
+    @apply overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-panel;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .apos-scroll-table {
+    @apply overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-panel;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .apos-scroll-table-dark {
+    @apply overflow-x-auto rounded-xl border border-slate-700/60 bg-slate-800;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .apos-table-min-dashboard {
+    min-width: 58rem;
+  }
+
+  .apos-table-min-operational {
+    min-width: 64rem;
+  }
+
+  .apos-table {
+    @apply w-full border-collapse text-xs text-slate-700;
+  }
+
+  .apos-table thead {
+    @apply bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500;
+  }
+
+  .apos-table th {
+    @apply border-b border-slate-200 px-3 py-2 font-semibold;
+  }
+
+  .apos-table td {
+    @apply border-b border-slate-100 px-3 py-2.5;
+  }
+
+  .apos-table tbody tr {
+    @apply transition-colors hover:bg-blue-50/50;
+  }
+
+  .apos-table tbody tr.apos-row-even {
+    background-color: #ffffff;
+  }
+
+  .apos-table tbody tr.apos-row-odd {
+    background-color: #f8fafc;
+  }
+
+  .apos-table tbody tr.apos-row-even:hover,
+  .apos-table tbody tr.apos-row-odd:hover {
+    background-color: rgba(239, 246, 255, 0.78);
+  }
+
+  .apos-table tbody tr.apos-row-warning {
+    background-color: rgba(201, 137, 22, 0.08);
+  }
+
+  .apos-table tbody tr.apos-row-warning:hover {
+    background-color: rgba(201, 137, 22, 0.14);
+  }
+
+  .apos-table tbody tr.apos-row-negative {
+    background-color: rgba(196, 61, 61, 0.07);
+  }
+
+  .apos-table tbody tr.apos-row-negative:hover {
+    background-color: rgba(196, 61, 61, 0.13);
+  }
+
+  .apos-status-dot {
+    @apply inline-block h-1.5 w-1.5 rounded-full;
+  }
+}
+
+html.theme-executive,
+html.theme-executive body {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 34rem),
+    #f5f7f8;
+  color: #17202a;
+}
+
+.theme-executive main .bg-slate-950,
+.theme-executive main .bg-slate-950\/70,
+.theme-executive main .bg-slate-900,
+.theme-executive main .bg-slate-900\/70,
+.theme-executive main .bg-slate-900\/40,
+.theme-executive main .bg-slate-900\/50,
+.theme-executive main .bg-slate-900\/60,
+.theme-executive main .bg-slate-900\/70,
+.theme-executive main .bg-slate-900\/80,
+.theme-executive main .bg-slate-800,
+.theme-executive main .bg-slate-800\/40,
+.theme-executive main .bg-slate-800\/50,
+.theme-executive main .bg-slate-800\/60,
+.theme-executive main .bg-slate-800\/70,
+.theme-executive main .bg-slate-800\/80 {
+  background-color: #ffffff !important;
+}
+
+.theme-executive main .bg-slate-700,
+.theme-executive main .bg-slate-700\/50,
+.theme-executive main .bg-slate-700\/60 {
+  background-color: #f1f5f9 !important;
+}
+
+.theme-executive main .border-slate-900,
+.theme-executive main .border-slate-800,
+.theme-executive main .border-slate-800\/40,
+.theme-executive main .border-slate-800\/50,
+.theme-executive main .border-slate-800\/60,
+.theme-executive main .border-slate-700,
+.theme-executive main .border-slate-700\/40,
+.theme-executive main .border-slate-700\/50,
+.theme-executive main .border-slate-700\/60,
+.theme-executive main .border-slate-600 {
+  border-color: #d9e1e7 !important;
+}
+
+.theme-executive main .text-white,
+.theme-executive main .text-slate-100,
+.theme-executive main .text-slate-200 {
+  color: #17202a !important;
+}
+
+.theme-executive main .apos-button-primary,
+.theme-executive main .bg-indigo-600,
+.theme-executive main .bg-orange-600,
+.theme-executive main .bg-emerald-600,
+.theme-executive main .bg-red-600 {
+  color: #ffffff !important;
+}
+
+.theme-executive main .text-slate-300 {
+  color: #334155 !important;
+}
+
+.theme-executive main .text-slate-400 {
+  color: #64748b !important;
+}
+
+.theme-executive main .text-slate-500,
+.theme-executive main .text-slate-600 {
+  color: #667482 !important;
+}
+
+.theme-executive main .text-indigo-400,
+.theme-executive main .text-blue-300,
+.theme-executive main .text-blue-400 {
+  color: #2563eb !important;
+}
+
+.theme-executive main .text-emerald-100,
+.theme-executive main .text-emerald-200,
+.theme-executive main .text-emerald-300,
+.theme-executive main .text-emerald-400 {
+  color: #168a4a !important;
+}
+
+.theme-executive .public-theme {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 34rem),
+    #f6f4ed !important;
+  color: #17202a !important;
+}
+
+.theme-executive .public-theme .bg-slate-950,
+.theme-executive .public-theme .bg-slate-950\/70,
+.theme-executive .public-theme .bg-slate-900,
+.theme-executive .public-theme .bg-slate-900\/60,
+.theme-executive .public-theme .bg-slate-800,
+.theme-executive .public-theme .bg-zinc-950,
+.theme-executive .public-theme .bg-zinc-900,
+.theme-executive .public-theme .bg-zinc-900\/70 {
+  background-color: #ffffff !important;
+}
+
+.theme-executive .public-theme .bg-slate-700,
+.theme-executive .public-theme .bg-zinc-800 {
+  background-color: #f1f5f9 !important;
+}
+
+.theme-executive .public-theme .border-slate-900,
+.theme-executive .public-theme .border-slate-800,
+.theme-executive .public-theme .border-slate-700,
+.theme-executive .public-theme .border-slate-600,
+.theme-executive .public-theme .border-zinc-900,
+.theme-executive .public-theme .border-zinc-800,
+.theme-executive .public-theme .border-zinc-700 {
+  border-color: #d9e1e7 !important;
+}
+
+.theme-executive .public-theme .text-white,
+.theme-executive .public-theme .text-slate-100,
+.theme-executive .public-theme .text-slate-200,
+.theme-executive .public-theme .text-zinc-100,
+.theme-executive .public-theme .text-zinc-200 {
+  color: #17202a !important;
+}
+
+.theme-executive .public-theme .text-slate-300,
+.theme-executive .public-theme .text-zinc-300 {
+  color: #334155 !important;
+}
+
+.theme-executive .public-theme .text-slate-400,
+.theme-executive .public-theme .text-slate-500,
+.theme-executive .public-theme .text-zinc-400,
+.theme-executive .public-theme .text-zinc-500 {
+  color: #64748b !important;
+}
+
+.theme-executive .public-theme .text-emerald-200,
+.theme-executive .public-theme .text-emerald-300,
+.theme-executive .public-theme .text-emerald-400 {
+  color: #168a4a !important;
+}
+
+.theme-executive .public-theme .text-cyan-300,
+.theme-executive .public-theme .text-indigo-300,
+.theme-executive .public-theme .text-indigo-400 {
+  color: #2563eb !important;
+}
+
+.theme-executive .public-theme .bg-indigo-600,
+.theme-executive .public-theme .bg-emerald-600,
+.theme-executive .public-theme .bg-red-600 {
+  color: #ffffff !important;
+}
+
+.theme-executive main .text-red-100,
+.theme-executive main .text-red-200,
+.theme-executive main .text-red-300,
+.theme-executive main .text-red-400 {
+  color: #c43d3d !important;
+}
+
+.theme-executive main .text-amber-300,
+.theme-executive main .text-yellow-300 {
+  color: #c98916 !important;
+}
+
+.theme-executive main .bg-indigo-600,
+.theme-executive main .bg-blue-600 {
+  background-color: #14202a !important;
+  color: #ffffff !important;
+}
+
+.theme-executive main .bg-emerald-600 {
+  background-color: #168a4a !important;
+  color: #ffffff !important;
+}
+
+.theme-executive main .bg-emerald-950\/30 {
+  background-color: #e8f7ef !important;
+}
+
+.theme-executive main .bg-red-600 {
+  background-color: #c43d3d !important;
+  color: #ffffff !important;
+}
+
+.theme-executive main input,
+.theme-executive main select,
+.theme-executive main textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #17202a !important;
+}
+
+.theme-executive main .rounded-xl,
+.theme-executive main .rounded-2xl,
+.theme-executive main .rounded-lg {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.theme-executive main table thead,
+.theme-executive main .bg-slate-50 {
+  background-color: #f8fafc !important;
+}
+
+.theme-executive .min-h-screen.bg-slate-900,
+.theme-executive .bg-slate-900.text-slate-100 {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 34rem),
+    #f5f7f8 !important;
+  color: #17202a !important;
+}
+
+.theme-executive header.bg-slate-950\/70,
+.theme-executive .border-b.bg-slate-950\/70 {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  border-color: #d9e1e7 !important;
+}
+
+.theme-executive .rounded-lg.bg-slate-800,
+.theme-executive .rounded-lg.border.bg-slate-800,
+.theme-executive .space-y-3.rounded-lg.bg-slate-800,
+.theme-executive .bg-slate-800.p-6,
+.theme-executive .bg-slate-800.p-5,
+.theme-executive .bg-slate-800.p-4 {
+  background-color: #ffffff !important;
+  border-color: #d9e1e7 !important;
+  color: #17202a !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.theme-executive .min-h-screen.bg-slate-900 .text-white,
+.theme-executive .min-h-screen.bg-slate-900 .text-slate-100,
+.theme-executive .min-h-screen.bg-slate-900 .text-slate-200,
+.theme-executive .min-h-screen.bg-slate-900 .text-slate-300 {
+  color: #17202a !important;
+}
+
+.theme-executive .min-h-screen.bg-slate-900 .text-slate-400,
+.theme-executive .min-h-screen.bg-slate-900 .text-slate-500 {
+  color: #667482 !important;
+}
+
+.theme-executive .min-h-screen.bg-slate-900 .border-slate-800,
+.theme-executive .min-h-screen.bg-slate-900 .border-slate-700,
+.theme-executive .min-h-screen.bg-slate-900 .border-slate-600 {
+  border-color: #d9e1e7 !important;
+}
+
+.theme-executive .min-h-screen.bg-slate-900 .bg-slate-950,
+.theme-executive .min-h-screen.bg-slate-900 .bg-slate-950\/70,
+.theme-executive .min-h-screen.bg-slate-900 .bg-slate-900,
+.theme-executive .min-h-screen.bg-slate-900 .bg-slate-900\/60,
+.theme-executive .min-h-screen.bg-slate-900 .bg-slate-900\/70,
+.theme-executive .min-h-screen.bg-slate-900 .bg-slate-900\/80 {
+  background-color: #f8fafc !important;
+}
+
+.theme-executive .min-h-screen.bg-slate-900 .bg-indigo-600 {
+  background-color: #14202a !important;
+  color: #ffffff !important;
+}
+
+.theme-executive .min-h-screen.bg-slate-900 .text-emerald-100,
+.theme-executive .min-h-screen.bg-slate-900 .text-emerald-200,
+.theme-executive .min-h-screen.bg-slate-900 .text-emerald-300 {
+  color: #168a4a !important;
+}
+
+.theme-executive .min-h-screen.bg-slate-900 .text-cyan-300 {
+  color: #2563eb !important;
+}
+
+html.theme-terminal,
+html.theme-terminal body {
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 30rem),
+    radial-gradient(circle at bottom right, rgba(22, 138, 74, 0.08), transparent 34rem),
+    #071018;
+  color: #d7e3ee;
+}
+
+.theme-terminal .bg-finance-canvas {
+  background-color: #071018 !important;
+}
+
+.theme-terminal .bg-white,
+.theme-terminal .apos-panel,
+.theme-terminal .apos-kpi,
+.theme-terminal .apos-table-wrap {
+  background-color: #101b27 !important;
+  border-color: #263747 !important;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28) !important;
+}
+
+.theme-terminal .apos-panel-muted,
+.theme-terminal .bg-slate-50,
+.theme-terminal .bg-slate-50\/70,
+.theme-terminal .bg-slate-50\/80,
+.theme-terminal .bg-blue-50 {
+  background-color: #0c1621 !important;
+  border-color: #223244 !important;
+}
+
+.theme-terminal .bg-white\/90 {
+  background-color: rgba(13, 24, 35, 0.94) !important;
+}
+
+.theme-terminal .border-slate-200,
+.theme-terminal .border-slate-300,
+.theme-terminal .border-finance-line {
+  border-color: #263747 !important;
+}
+
+.theme-terminal .text-slate-950,
+.theme-terminal .text-slate-900,
+.theme-terminal .text-finance-text {
+  color: #f5f9fc !important;
+}
+
+.theme-terminal .text-slate-800,
+.theme-terminal .text-slate-700,
+.theme-terminal .text-slate-600 {
+  color: #c8d4df !important;
+}
+
+.theme-terminal .text-slate-500,
+.theme-terminal .text-slate-400 {
+  color: #8193a6 !important;
+}
+
+.theme-terminal .text-slate-300 {
+  color: #a8b8c8 !important;
+}
+
+.theme-terminal .text-finance-green,
+.theme-terminal .text-emerald-700 {
+  color: #37d67a !important;
+}
+
+.theme-terminal .text-finance-red {
+  color: #ff6b6b !important;
+}
+
+.theme-terminal .text-finance-blue,
+.theme-terminal .text-sky-700,
+.theme-terminal .text-blue-800,
+.theme-terminal .text-blue-700 {
+  color: #57c7ff !important;
+}
+
+.theme-terminal .text-finance-amber {
+  color: #f7b955 !important;
+}
+
+.theme-terminal .apos-control,
+.theme-terminal input,
+.theme-terminal select,
+.theme-terminal textarea {
+  background-color: #0b1420 !important;
+  border-color: #263747 !important;
+  color: #eff6fb !important;
+}
+
+.theme-terminal .apos-button {
+  background-color: #111f2d !important;
+  border-color: #2a4055 !important;
+  color: #dbe8f3 !important;
+  box-shadow: none !important;
+}
+
+.theme-terminal .apos-button:hover {
+  background-color: #17293a !important;
+  border-color: #36536d !important;
+}
+
+.theme-terminal .apos-button-primary {
+  background-color: #22d3ee !important;
+  color: #071018 !important;
+}
+
+.theme-terminal .apos-button-primary:disabled {
+  background-color: #243544 !important;
+  color: #7e91a4 !important;
+}
+
+.theme-executive .apos-code-block,
+.theme-executive .apos-code-shell {
+  background-color: #182232 !important;
+  border-color: #344255 !important;
+  color: #eef6ff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.theme-executive .apos-code-row {
+  border-color: #344255 !important;
+}
+
+.theme-executive .apos-code-shell code {
+  color: #eef6ff !important;
+}
+
+.theme-executive .apos-copy-button {
+  border-color: #344255 !important;
+  color: #d6e2ee !important;
+}
+
+.theme-executive .apos-copy-button:hover {
+  background-color: #223145 !important;
+  color: #ffffff !important;
+}
+
+.theme-terminal .apos-table {
+  color: #c8d4df !important;
+}
+
+.theme-terminal .apos-table thead {
+  background-color: #0b1420 !important;
+  color: #7f92a6 !important;
+}
+
+.theme-terminal .apos-table th,
+.theme-terminal .apos-table td {
+  border-color: #1d2b3a !important;
+}
+
+.theme-terminal .apos-table tbody tr:hover {
+  background-color: rgba(34, 211, 238, 0.08) !important;
+}
+
+.theme-terminal .shadow-sm,
+.theme-terminal .shadow-panel,
+.theme-terminal .shadow-soft {
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.28) !important;
+}
+
+.theme-terminal .ring-blue-200,
+.theme-terminal .ring-sky-200,
+.theme-terminal .ring-emerald-200 {
+  --tw-ring-color: rgba(34, 211, 238, 0.32) !important;
+}
+
+.theme-terminal .bg-blue-100,
+.theme-terminal .bg-slate-100 {
+  background-color: #1c2a39 !important;
+}
+
+.theme-terminal .bg-emerald-50 {
+  background-color: rgba(55, 214, 122, 0.12) !important;
+}
+
+.theme-terminal .border-emerald-200 {
+  border-color: rgba(55, 214, 122, 0.38) !important;
+}
+
+.theme-terminal .bg-blue-50 {
+  background-color: rgba(87, 199, 255, 0.10) !important;
+}
+
+.theme-terminal .border-blue-200 {
+  border-color: rgba(87, 199, 255, 0.34) !important;
+}
+
+.theme-terminal .bg-amber-50 {
+  background-color: rgba(247, 185, 85, 0.12) !important;
+}
+
+.theme-terminal .border-amber-200 {
+  border-color: rgba(247, 185, 85, 0.36) !important;
+}
+
+.theme-terminal .bg-red-50 {
+  background-color: rgba(255, 107, 107, 0.12) !important;
+}
+
+.theme-terminal .border-red-200 {
+  border-color: rgba(255, 107, 107, 0.36) !important;
+}
+
+.theme-terminal .bg-finance-blue {
+  background-color: #22d3ee !important;
+}
+
+.theme-terminal .bg-finance-green {
+  background-color: #37d67a !important;
+}
+
+.theme-terminal .bg-finance-red {
+  background-color: #ff6b6b !important;
+}
+
+.theme-terminal main .bg-slate-950,
+.theme-terminal main .bg-slate-900,
+.theme-terminal main .bg-slate-900\/40,
+.theme-terminal main .bg-slate-900\/50,
+.theme-terminal main .bg-slate-900\/60,
+.theme-terminal main .bg-slate-900\/70,
+.theme-terminal main .bg-slate-900\/80 {
+  background-color: #071018 !important;
+}
+
+.theme-terminal main .bg-slate-800,
+.theme-terminal main .bg-slate-800\/40,
+.theme-terminal main .bg-slate-800\/50,
+.theme-terminal main .bg-slate-800\/60,
+.theme-terminal main .bg-slate-800\/70,
+.theme-terminal main .bg-slate-800\/80 {
+  background-color: #101b27 !important;
+}
+
+.theme-terminal main .bg-slate-700,
+.theme-terminal main .bg-slate-700\/50,
+.theme-terminal main .bg-slate-700\/60 {
+  background-color: #18283a !important;
+}
+
+/* ============================================================
+ * Variant C — "Founder's Desk"
+ * Warm operator's terminal: dense, JetBrains Mono numerics,
+ * mustard accent, sage/terracotta deltas.
+ * ============================================================ */
+
+html.theme-warm {
+  --c-bg: #1a1714;
+  --c-surface: #241f1a;
+  --c-surface-2: #2d2620;
+  --c-line: rgba(255, 240, 210, 0.08);
+  --c-line-strong: rgba(255, 240, 210, 0.16);
+  --c-text: #f4ede0;
+  --c-text-muted: #a89a86;
+  --c-text-dim: #7a6f5e;
+  --c-accent: #d4a13b;
+  --c-positive: #8aa05c;
+  --c-negative: #c66a3d;
+}
+
+html.theme-warm,
+html.theme-warm body {
+  background: var(--c-bg) !important;
+  color: var(--c-text);
+}
+
+/* Sidebar + header rebrand */
+.theme-warm aside.bg-ink-950,
+.theme-warm .bg-ink-950 {
+  background-color: var(--c-bg) !important;
+}
+.theme-warm header.bg-slate-950\/90 {
+  background-color: rgba(26, 23, 20, 0.92) !important;
+  border-color: var(--c-line) !important;
+}
+
+/* Main canvas */
+.theme-warm main {
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-feature-settings: 'tnum' 1, 'cv11' 1, 'ss01' 1;
+}
+
+/* Tighter density */
+.theme-warm main .py-2\.5 { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
+.theme-warm main .py-3 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+
+/* Recolor slates → warm surfaces */
+.theme-warm main .bg-slate-950,
+.theme-warm main .bg-slate-950\/70,
+.theme-warm main .bg-slate-900,
+.theme-warm main .bg-slate-900\/40,
+.theme-warm main .bg-slate-900\/50,
+.theme-warm main .bg-slate-900\/60,
+.theme-warm main .bg-slate-900\/70,
+.theme-warm main .bg-slate-900\/80 {
+  background-color: var(--c-surface) !important;
+}
+.theme-warm main .bg-slate-800,
+.theme-warm main .bg-slate-800\/40,
+.theme-warm main .bg-slate-800\/50,
+.theme-warm main .bg-slate-800\/60,
+.theme-warm main .bg-slate-800\/70,
+.theme-warm main .bg-slate-800\/80,
+.theme-warm main .bg-slate-700,
+.theme-warm main .bg-slate-700\/50,
+.theme-warm main .bg-slate-700\/60 {
+  background-color: var(--c-surface-2) !important;
+}
+
+/* Borders */
+.theme-warm main .border-slate-900,
+.theme-warm main .border-slate-800,
+.theme-warm main .border-slate-800\/40,
+.theme-warm main .border-slate-800\/50,
+.theme-warm main .border-slate-800\/60,
+.theme-warm main .border-slate-700,
+.theme-warm main .border-slate-700\/40,
+.theme-warm main .border-slate-700\/50,
+.theme-warm main .border-slate-700\/60,
+.theme-warm main .border-slate-600 {
+  border-color: var(--c-line-strong) !important;
+}
+
+/* Text */
+.theme-warm main .text-white,
+.theme-warm main .text-slate-100,
+.theme-warm main .text-slate-200 { color: var(--c-text) !important; }
+.theme-warm main .text-slate-300 { color: #d6cab2 !important; }
+.theme-warm main .text-slate-400 { color: var(--c-text-muted) !important; }
+.theme-warm main .text-slate-500,
+.theme-warm main .text-slate-600 { color: var(--c-text-dim) !important; }
+
+/* Emerald → mustard / positive sage */
+.theme-warm main .text-emerald-100,
+.theme-warm main .text-emerald-200,
+.theme-warm main .text-emerald-300,
+.theme-warm main .text-emerald-400 { color: var(--c-positive) !important; }
+.theme-warm main .bg-emerald-400,
+.theme-warm main .bg-emerald-500 {
+  background-color: var(--c-accent) !important;
+  color: var(--c-bg) !important;
+}
+.theme-warm main .bg-emerald-600 {
+  background-color: var(--c-positive) !important;
+  color: var(--c-bg) !important;
+}
+.theme-warm main .bg-emerald-400\/15,
+.theme-warm main .bg-emerald-400\/20 {
+  background-color: rgba(212, 161, 59, 0.16) !important;
+  color: var(--c-accent) !important;
+}
+
+/* Reds → terracotta */
+.theme-warm main .text-red-100,
+.theme-warm main .text-red-200,
+.theme-warm main .text-red-300,
+.theme-warm main .text-red-400 { color: var(--c-negative) !important; }
+.theme-warm main .bg-red-600 { background-color: var(--c-negative) !important; }
+.theme-warm main .bg-red-500\/10 { background-color: rgba(198, 106, 61, 0.12) !important; }
+
+/* Indigo / blue → mustard */
+.theme-warm main .text-indigo-400,
+.theme-warm main .text-blue-300,
+.theme-warm main .text-blue-400 { color: var(--c-accent) !important; }
+.theme-warm main .bg-indigo-600,
+.theme-warm main .bg-blue-600 {
+  background-color: var(--c-accent) !important;
+  color: var(--c-bg) !important;
+}
+
+/* Amber stays as accent */
+.theme-warm main .text-amber-300,
+.theme-warm main .text-yellow-300 { color: var(--c-accent) !important; }
+
+/* Inputs */
+.theme-warm main input,
+.theme-warm main select,
+.theme-warm main textarea {
+  background-color: var(--c-surface) !important;
+  border-color: var(--c-line-strong) !important;
+  color: var(--c-text);
+}
+.theme-warm main input:focus,
+.theme-warm main select:focus,
+.theme-warm main textarea:focus {
+  border-color: var(--c-accent) !important;
+  box-shadow: 0 0 0 1px var(--c-accent) !important;
+}
+
+/* Reduce radius and shadows for terminal feel */
+.theme-warm main .rounded-lg,
+.theme-warm main .rounded-xl,
+.theme-warm main .rounded-2xl,
+.theme-warm main .rounded-md { border-radius: 2px !important; }
+.theme-warm main .shadow-sm,
+.theme-warm main .shadow,
+.theme-warm main .shadow-md,
+.theme-warm main .shadow-lg,
+.theme-warm main .shadow-xl,
+.theme-warm main .shadow-2xl,
+.theme-warm main .shadow-panel,
+.theme-warm main .shadow-soft { box-shadow: none !important; }
+
+/* Sidebar accent: emerald → mustard */
+.theme-warm aside .bg-emerald-400 {
+  background-color: var(--c-accent) !important;
+  color: var(--c-bg) !important;
+}
+.theme-warm aside .text-emerald-300,
+.theme-warm aside .text-emerald-200 { color: var(--c-accent) !important; }
+
+/* Numerics in JetBrains Mono */
+.theme-warm main .tabular-nums,
+.theme-warm main td,
+.theme-warm main .apos-kpi-value,
+.theme-warm main .text-2xl,
+.theme-warm main .text-3xl {
+  font-feature-settings: 'tnum' 1, 'cv11' 1, 'ss01' 1;
+}
+.theme-warm main td,
+.theme-warm main .font-mono,
+.theme-warm main .apos-kpi-value {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Hover row: warm amber tint */
+.theme-warm main tbody tr:hover,
+.theme-warm main .hover\:bg-blue-50\/50:hover,
+.theme-warm main .hover\:bg-slate-900\/60:hover,
+.theme-warm main .hover\:bg-white:hover,
+.theme-warm main .hover\:bg-slate-100:hover,
+.theme-warm main .hover\:bg-slate-50:hover {
+  background-color: rgba(212, 161, 59, 0.08) !important;
+}
+
+/* Active nav: mustard left-border instead of bg-white/10 */
+.theme-warm aside .bg-white\/10 {
+  background-color: transparent !important;
+  box-shadow: inset 3px 0 0 var(--c-accent);
+  color: var(--c-accent) !important;
+}
+
+/* Catch-all: white + light slates → warm surfaces */
+.theme-warm main .bg-white,
+.theme-warm main .bg-white\/90,
+.theme-warm main .bg-white\/80,
+.theme-warm main .bg-white\/70,
+.theme-warm main .bg-finance-panel { background-color: var(--c-surface) !important; }
+
+.theme-warm main .bg-slate-50,
+.theme-warm main .bg-slate-50\/70,
+.theme-warm main .bg-slate-50\/80,
+.theme-warm main .bg-slate-50\/60,
+.theme-warm main .bg-slate-100,
+.theme-warm main .bg-slate-100\/70,
+.theme-warm main .bg-slate-200,
+.theme-warm main .bg-finance-canvas { background-color: var(--c-surface-2) !important; }
+
+/* Light blue range / sky range tints */
+.theme-warm main .bg-blue-50,
+.theme-warm main .bg-blue-50\/60,
+.theme-warm main .bg-blue-100,
+.theme-warm main .bg-sky-50,
+.theme-warm main .bg-sky-100,
+.theme-warm main .bg-indigo-50,
+.theme-warm main .bg-indigo-100 {
+  background-color: rgba(212, 161, 59, 0.10) !important;
+}
+
+/* Light slate borders */
+.theme-warm main .border-slate-100,
+.theme-warm main .border-slate-200,
+.theme-warm main .border-slate-300,
+.theme-warm main .border-slate-400,
+.theme-warm main .border-finance-line { border-color: var(--c-line-strong) !important; }
+
+/* Missing slate text shades */
+.theme-warm main .text-slate-700,
+.theme-warm main .text-slate-800,
+.theme-warm main .text-slate-900,
+.theme-warm main .text-slate-950,
+.theme-warm main .text-finance-text { color: var(--c-text) !important; }
+
+/* Component classes baked with bg-white via @apply */
+.theme-warm .apos-panel,
+.theme-warm .apos-kpi,
+.theme-warm .apos-table-wrap,
+.theme-warm .apos-button {
+  background-color: var(--c-surface) !important;
+  border-color: var(--c-line-strong) !important;
+  box-shadow: none !important;
+  border-radius: 2px !important;
+  color: var(--c-text);
+}
+.theme-warm .apos-panel-muted {
+  background-color: var(--c-surface-2) !important;
+  border-color: var(--c-line-strong) !important;
+}
+.theme-warm .apos-button {
+  color: var(--c-text-muted) !important;
+}
+.theme-warm .apos-button:hover {
+  background-color: var(--c-surface-2) !important;
+  border-color: var(--c-accent) !important;
+  color: var(--c-text) !important;
+}
+.theme-warm .apos-button-primary {
+  background-color: var(--c-accent) !important;
+  color: var(--c-bg) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+}
+.theme-warm .apos-control {
+  background-color: var(--c-surface) !important;
+  border-color: var(--c-line-strong) !important;
+  color: var(--c-text) !important;
+  border-radius: 2px !important;
+}
+.theme-warm .apos-control:focus {
+  border-color: var(--c-accent) !important;
+  box-shadow: 0 0 0 2px rgba(212, 161, 59, 0.25) !important;
+}
+.theme-warm .apos-table { color: var(--c-text); }
+.theme-warm .apos-table thead {
+  background-color: var(--c-surface-2) !important;
+  color: var(--c-text-muted) !important;
+}
+.theme-warm .apos-table th {
+  border-color: var(--c-line-strong) !important;
+  color: var(--c-text-muted) !important;
+}
+.theme-warm .apos-table td {
+  border-color: var(--c-line) !important;
+}
+.theme-warm .apos-table tbody tr.apos-row-even {
+  background-color: var(--c-surface) !important;
+}
+.theme-warm .apos-table tbody tr.apos-row-odd {
+  background-color: var(--c-surface-2) !important;
+}
+.theme-warm .apos-table tbody tr.apos-row-warning {
+  background-color: rgba(212, 161, 59, 0.06) !important;
+  box-shadow: inset 3px 0 0 rgba(212, 161, 59, 0.52);
+}
+.theme-warm .apos-table tbody tr.apos-row-negative {
+  background-color: rgba(198, 106, 61, 0.08) !important;
+  box-shadow: inset 3px 0 0 rgba(198, 106, 61, 0.55);
+}
+.theme-warm .apos-table tbody tr:hover {
+  background-color: rgba(212, 161, 59, 0.08) !important;
+}
+.theme-warm .apos-table tbody tr.apos-row-negative:hover {
+  background-color: rgba(198, 106, 61, 0.12) !important;
+}
+
+/* Page background — overrides bg-finance-canvas on Layout root */
+.theme-warm .bg-finance-canvas { background-color: var(--c-bg) !important; }
+.theme-warm.dark { color-scheme: dark; }
+
+/* Skeleton pulse blocks (bg-slate-200 in tables) */
+.theme-warm main .animate-pulse.bg-slate-200,
+.theme-warm main .bg-slate-200\/60 { background-color: var(--c-surface-2) !important; }
+
+/* ============================================================
+ * Variant D — "Editorial Brutalist"
+ * Swiss editorial × brutalist hard edges.
+ * Cream paper, hairline black borders, Fraunces hero numerals.
+ * ============================================================ */
+
+html.theme-editorial {
+  --d-bg: #f7f5ef;
+  --d-surface: #ffffff;
+  --d-line: #000000;
+  --d-text: #0a0a0a;
+  --d-text-muted: #5a5a5a;
+  --d-accent: #0a2bc7;
+  --d-positive: #0a0a0a;
+  --d-negative: #e8221e;
+}
+
+html.theme-editorial,
+html.theme-editorial body {
+  background: var(--d-bg) !important;
+  color: var(--d-text);
+}
+
+/* Sidebar */
+.theme-editorial aside {
+  background-color: var(--d-surface) !important;
+  color: var(--d-text) !important;
+  border-right: 1px solid var(--d-line) !important;
+  box-shadow: none !important;
+}
+.theme-editorial aside .bg-ink-950,
+.theme-editorial aside .text-white {
+  background-color: var(--d-surface) !important;
+  color: var(--d-text) !important;
+}
+.theme-editorial aside .border-slate-200,
+.theme-editorial aside .border-white\/10 {
+  border-color: var(--d-line) !important;
+}
+
+/* Header */
+.theme-editorial header {
+  background-color: var(--d-surface) !important;
+  border-bottom: 1px solid var(--d-line) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Main canvas */
+.theme-editorial main {
+  background: var(--d-bg);
+  color: var(--d-text);
+}
+
+/* Slate backgrounds → white surface or cream canvas */
+.theme-editorial main .bg-slate-950,
+.theme-editorial main .bg-slate-950\/70,
+.theme-editorial main .bg-slate-900,
+.theme-editorial main .bg-slate-900\/40,
+.theme-editorial main .bg-slate-900\/50,
+.theme-editorial main .bg-slate-900\/60,
+.theme-editorial main .bg-slate-900\/70,
+.theme-editorial main .bg-slate-900\/80,
+.theme-editorial main .bg-slate-800,
+.theme-editorial main .bg-slate-800\/40,
+.theme-editorial main .bg-slate-800\/50,
+.theme-editorial main .bg-slate-800\/60,
+.theme-editorial main .bg-slate-800\/70,
+.theme-editorial main .bg-slate-800\/80 {
+  background-color: var(--d-surface) !important;
+}
+.theme-editorial main .bg-slate-700,
+.theme-editorial main .bg-slate-700\/50,
+.theme-editorial main .bg-slate-700\/60,
+.theme-editorial main .bg-slate-50,
+.theme-editorial main .bg-slate-50\/80 {
+  background-color: var(--d-bg) !important;
+}
+
+/* All borders → hairline black */
+.theme-editorial main .border-slate-100,
+.theme-editorial main .border-slate-200,
+.theme-editorial main .border-slate-300,
+.theme-editorial main .border-slate-400,
+.theme-editorial main .border-slate-500,
+.theme-editorial main .border-slate-600,
+.theme-editorial main .border-slate-700,
+.theme-editorial main .border-slate-700\/40,
+.theme-editorial main .border-slate-700\/50,
+.theme-editorial main .border-slate-700\/60,
+.theme-editorial main .border-slate-800,
+.theme-editorial main .border-slate-800\/40,
+.theme-editorial main .border-slate-800\/50,
+.theme-editorial main .border-slate-800\/60,
+.theme-editorial main .border-slate-900 {
+  border-color: var(--d-line) !important;
+}
+
+/* Text */
+.theme-editorial main .text-white,
+.theme-editorial main .text-slate-100,
+.theme-editorial main .text-slate-200,
+.theme-editorial main .text-slate-300 { color: var(--d-text) !important; }
+.theme-editorial main .text-slate-400,
+.theme-editorial main .text-slate-500,
+.theme-editorial main .text-slate-600 { color: var(--d-text-muted) !important; }
+
+/* Single accent: cobalt */
+.theme-editorial main .text-emerald-100,
+.theme-editorial main .text-emerald-200,
+.theme-editorial main .text-emerald-300,
+.theme-editorial main .text-emerald-400,
+.theme-editorial main .text-indigo-400,
+.theme-editorial main .text-blue-300,
+.theme-editorial main .text-blue-400,
+.theme-editorial main .text-amber-300,
+.theme-editorial main .text-yellow-300 { color: var(--d-accent) !important; }
+.theme-editorial main .bg-emerald-400,
+.theme-editorial main .bg-emerald-500,
+.theme-editorial main .bg-emerald-600,
+.theme-editorial main .bg-indigo-600,
+.theme-editorial main .bg-blue-600 {
+  background-color: var(--d-text) !important;
+  color: var(--d-surface) !important;
+}
+.theme-editorial main .bg-emerald-400\/15,
+.theme-editorial main .bg-emerald-400\/20,
+.theme-editorial main .bg-emerald-950\/30 {
+  background-color: var(--d-bg) !important;
+  color: var(--d-text) !important;
+  border: 1px solid var(--d-line) !important;
+}
+
+/* Negatives */
+.theme-editorial main .text-red-100,
+.theme-editorial main .text-red-200,
+.theme-editorial main .text-red-300,
+.theme-editorial main .text-red-400 { color: var(--d-negative) !important; }
+.theme-editorial main .bg-red-600 {
+  background-color: var(--d-negative) !important;
+  color: var(--d-surface) !important;
+}
+.theme-editorial main .bg-red-500\/10 { background-color: rgba(232, 34, 30, 0.06) !important; }
+
+/* Inputs */
+.theme-editorial main input,
+.theme-editorial main select,
+.theme-editorial main textarea {
+  background-color: var(--d-surface) !important;
+  border: 1px solid var(--d-line) !important;
+  border-radius: 0 !important;
+  color: var(--d-text) !important;
+  box-shadow: none !important;
+}
+.theme-editorial main input:focus,
+.theme-editorial main select:focus,
+.theme-editorial main textarea:focus {
+  outline: 2px solid var(--d-accent) !important;
+  outline-offset: -2px;
+  border-color: var(--d-line) !important;
+  box-shadow: none !important;
+}
+
+/* Flatten: no rounding, no shadows, no gradients anywhere */
+.theme-editorial main .rounded-sm,
+.theme-editorial main .rounded,
+.theme-editorial main .rounded-md,
+.theme-editorial main .rounded-lg,
+.theme-editorial main .rounded-xl,
+.theme-editorial main .rounded-2xl,
+.theme-editorial main .rounded-full { border-radius: 0 !important; }
+
+.theme-editorial main .shadow-sm,
+.theme-editorial main .shadow,
+.theme-editorial main .shadow-md,
+.theme-editorial main .shadow-lg,
+.theme-editorial main .shadow-xl,
+.theme-editorial main .shadow-2xl,
+.theme-editorial main .shadow-inner,
+.theme-editorial main .shadow-panel,
+.theme-editorial main .shadow-soft { box-shadow: none !important; }
+
+.theme-editorial main [class*="bg-gradient-"],
+.theme-editorial main [style*="gradient"] { background-image: none !important; }
+
+/* Sidebar accents */
+.theme-editorial aside .bg-emerald-400 {
+  background-color: var(--d-text) !important;
+  color: var(--d-surface) !important;
+  border-radius: 0 !important;
+}
+.theme-editorial aside .text-emerald-300,
+.theme-editorial aside .text-emerald-200 { color: var(--d-accent) !important; }
+.theme-editorial aside .bg-white\/10,
+.theme-editorial aside .bg-slate-950 {
+  background-color: var(--d-text) !important;
+  color: var(--d-surface) !important;
+  border-radius: 0 !important;
+}
+
+/* Tables: thick black header underline + 2px above totals */
+.theme-editorial main table thead th {
+  border-bottom: 2px solid var(--d-line) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  color: var(--d-text-muted) !important;
+}
+.theme-editorial main table tbody tr {
+  transition: none !important;
+}
+.theme-editorial main table tbody tr.apos-row-even {
+  background-color: var(--d-surface) !important;
+}
+.theme-editorial main table tbody tr.apos-row-odd {
+  background-color: var(--d-bg) !important;
+}
+.theme-editorial main table tbody tr:hover,
+.theme-editorial main .hover\:bg-blue-50\/50:hover,
+.theme-editorial main .hover\:bg-slate-900\/60:hover,
+.theme-editorial main .hover\:bg-white:hover,
+.theme-editorial main .hover\:bg-slate-100:hover,
+.theme-editorial main .hover\:bg-slate-50:hover {
+  background-color: var(--d-bg) !important;
+}
+.theme-editorial main table tfoot td,
+.theme-editorial main table tr.font-bold td {
+  border-top: 2px solid var(--d-line) !important;
+}
+
+/* Hero numerics: Fraunces serif */
+.theme-editorial main .text-3xl,
+.theme-editorial main .text-4xl,
+.theme-editorial main .text-5xl,
+.theme-editorial main h1,
+.theme-editorial main .apos-kpi-value {
+  font-family: 'Fraunces', 'Source Serif Pro', Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Section labels uppercase */
+.theme-editorial main h2,
+.theme-editorial main h3 {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+/* Buttons: black rectangles */
+.theme-editorial main button,
+.theme-editorial main .apos-button,
+.theme-editorial main .apos-button-primary {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.theme-editorial main .apos-button-primary {
+  background-color: var(--d-text) !important;
+  color: var(--d-surface) !important;
+  border: 1px solid var(--d-line) !important;
+}
+.theme-editorial main .apos-button-primary:hover {
+  background-color: var(--d-surface) !important;
+  color: var(--d-text) !important;
+}
+
+/* 50% more breathing room inside panels */
+.theme-editorial main .p-4 { padding: 1.5rem !important; }
+.theme-editorial main .p-3 { padding: 1.25rem !important; }
+.theme-editorial main .px-4 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+.theme-editorial main .py-3 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+
+/* Public pages (landing, login, register, public security) live outside the app
+   layout main, so they need the same light-theme recolor rules explicitly. */
+.theme-editorial .min-h-screen.bg-slate-900,
+.theme-editorial .min-h-screen.bg-zinc-950 {
+  background: var(--d-bg) !important;
+  color: var(--d-text) !important;
+}
+
+.theme-editorial .min-h-screen .bg-slate-950,
+.theme-editorial .min-h-screen .bg-slate-950\/70,
+.theme-editorial .min-h-screen .bg-slate-900,
+.theme-editorial .min-h-screen .bg-slate-900\/60,
+.theme-editorial .min-h-screen .bg-slate-800,
+.theme-editorial .min-h-screen .bg-zinc-950,
+.theme-editorial .min-h-screen .bg-zinc-900,
+.theme-editorial .min-h-screen .bg-zinc-900\/70 {
+  background-color: var(--d-surface) !important;
+}
+
+.theme-editorial .min-h-screen .border-slate-800,
+.theme-editorial .min-h-screen .border-slate-700,
+.theme-editorial .min-h-screen .border-slate-600,
+.theme-editorial .min-h-screen .border-zinc-800,
+.theme-editorial .min-h-screen .border-zinc-700,
+.theme-editorial .min-h-screen .border-zinc-600 {
+  border-color: var(--d-line) !important;
+}
+
+.theme-editorial .min-h-screen .text-white,
+.theme-editorial .min-h-screen .text-slate-100,
+.theme-editorial .min-h-screen .text-slate-200,
+.theme-editorial .min-h-screen .text-slate-300,
+.theme-editorial .min-h-screen .text-zinc-100,
+.theme-editorial .min-h-screen .text-zinc-200,
+.theme-editorial .min-h-screen .text-zinc-300 {
+  color: var(--d-text) !important;
+}
+
+.theme-editorial .min-h-screen .text-slate-400,
+.theme-editorial .min-h-screen .text-slate-500,
+.theme-editorial .min-h-screen .text-zinc-400,
+.theme-editorial .min-h-screen .text-zinc-500 {
+  color: var(--d-text-muted) !important;
+}
+
+.theme-editorial .min-h-screen input,
+.theme-editorial .min-h-screen select,
+.theme-editorial .min-h-screen textarea {
+  background-color: var(--d-surface) !important;
+  border-color: var(--d-line) !important;
+  color: var(--d-text) !important;
+}
+
+.theme-editorial .min-h-screen .bg-indigo-600,
+.theme-editorial .min-h-screen .bg-cyan-500 {
+  background-color: var(--d-text) !important;
+  color: var(--d-surface) !important;
+}
+
+.theme-editorial main .apos-code-shell,
+.theme-editorial main .apos-code-block,
+.theme-editorial main .bg-slate-950\/70,
+.theme-editorial main .bg-slate-950\/80 {
+  background-color: #0f172a !important;
+  border-color: #344255 !important;
+  color: #f8fafc !important;
+}
+
+.theme-editorial main .apos-code-shell code,
+.theme-editorial main .apos-code-block,
+.theme-editorial main .apos-code-row code,
+.theme-editorial main pre.text-slate-100 {
+  color: #f8fafc !important;
+}
+
+.theme-editorial main .apos-copy-button,
+.theme-editorial main button.text-slate-200 {
+  color: #f8fafc !important;
+}
+
+/* Executive contrast fixes for verification/security surfaces */
+.theme-executive main .apos-button-primary,
+.theme-executive main a.bg-indigo-600,
+.theme-executive main button.bg-indigo-600,
+.theme-executive main a.bg-orange-600,
+.theme-executive main button.bg-orange-600,
+.theme-executive main button.bg-emerald-600,
+.theme-executive main button.bg-red-600 {
+  color: #ffffff !important;
+}
+
+.theme-executive main .bg-indigo-500\/20.text-indigo-100 {
+  background-color: #e8f0ff !important;
+  border-color: #2563eb !important;
+  color: #14202a !important;
+}
+
+.theme-executive main .apos-code-shell,
+.theme-executive main .apos-code-block,
+.theme-executive main .bg-slate-950\/70,
+.theme-executive main .bg-slate-950\/80 {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+.theme-executive main .apos-code-shell code,
+.theme-executive main .apos-code-block,
+.theme-executive main .apos-code-row code,
+.theme-executive main pre.text-slate-100 {
+  color: #f8fafc !important;
+}
+
+.theme-executive main .apos-copy-button,
+.theme-executive main button.text-slate-200 {
+  color: #f8fafc !important;
+}
+
+/* ============================================================
+ * Variant E — "Paragon Fiskalny"
+ * Fiscal-receipt ledger: cool paper, register green, fiscal red
+ * reserved strictly for corrections/refunds. Tabular mono figures.
+ * ============================================================ */
+
+html.theme-paragon {
+  --p-bg: #eef1ee;
+  --p-surface: #ffffff;
+  --p-surface-2: #e4e9e3;
+  --p-line: #cdd6cf;
+  --p-text: #14231c;
+  --p-text-muted: #5f6f65;
+  --p-accent: #0f6b4c;
+  --p-positive: #1f9d63;
+  --p-negative: #c81e3a;
+  --p-warning: #b8791a;
+}
+
+html.theme-paragon,
+html.theme-paragon body {
+  background: var(--p-bg) !important;
+  color: var(--p-text);
+}
+
+.theme-paragon .bg-finance-canvas {
+  background-color: var(--p-bg) !important;
+}
+
+.theme-paragon aside {
+  background-color: var(--p-surface) !important;
+  color: var(--p-text) !important;
+  border-right: 1px solid var(--p-line) !important;
+  box-shadow: none !important;
+}
+.theme-paragon aside .bg-ink-950,
+.theme-paragon aside .text-white {
+  background-color: var(--p-surface) !important;
+  color: var(--p-text) !important;
+}
+.theme-paragon aside .border-slate-200,
+.theme-paragon aside .border-white\/10 {
+  border-color: var(--p-line) !important;
+}
+
+.theme-paragon header {
+  background-color: var(--p-surface) !important;
+  border-bottom: 1px solid var(--p-line) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.theme-paragon main {
+  background: var(--p-bg);
+  color: var(--p-text);
+}
+
+.theme-paragon main .bg-slate-950,
+.theme-paragon main .bg-slate-950\/70,
+.theme-paragon main .bg-slate-900,
+.theme-paragon main .bg-slate-900\/40,
+.theme-paragon main .bg-slate-900\/50,
+.theme-paragon main .bg-slate-900\/60,
+.theme-paragon main .bg-slate-900\/70,
+.theme-paragon main .bg-slate-900\/80,
+.theme-paragon main .bg-slate-800,
+.theme-paragon main .bg-slate-800\/40,
+.theme-paragon main .bg-slate-800\/50,
+.theme-paragon main .bg-slate-800\/60,
+.theme-paragon main .bg-slate-800\/70,
+.theme-paragon main .bg-slate-800\/80 {
+  background-color: var(--p-surface) !important;
+}
+.theme-paragon main .bg-slate-700,
+.theme-paragon main .bg-slate-700\/50,
+.theme-paragon main .bg-slate-700\/60,
+.theme-paragon main .bg-slate-50,
+.theme-paragon main .bg-slate-50\/80 {
+  background-color: var(--p-surface-2) !important;
+}
+
+.theme-paragon main .border-slate-100,
+.theme-paragon main .border-slate-200,
+.theme-paragon main .border-slate-300,
+.theme-paragon main .border-slate-400,
+.theme-paragon main .border-slate-500,
+.theme-paragon main .border-slate-600,
+.theme-paragon main .border-slate-700,
+.theme-paragon main .border-slate-700\/40,
+.theme-paragon main .border-slate-700\/50,
+.theme-paragon main .border-slate-700\/60,
+.theme-paragon main .border-slate-800,
+.theme-paragon main .border-slate-800\/40,
+.theme-paragon main .border-slate-800\/50,
+.theme-paragon main .border-slate-800\/60,
+.theme-paragon main .border-slate-900 {
+  border-color: var(--p-line) !important;
+}
+
+.theme-paragon main .text-white,
+.theme-paragon main .text-slate-100,
+.theme-paragon main .text-slate-200,
+.theme-paragon main .text-slate-300 { color: var(--p-text) !important; }
+.theme-paragon main .text-slate-400,
+.theme-paragon main .text-slate-500,
+.theme-paragon main .text-slate-600 { color: var(--p-text-muted) !important; }
+
+.theme-paragon main .text-emerald-100,
+.theme-paragon main .text-emerald-200,
+.theme-paragon main .text-emerald-300,
+.theme-paragon main .text-emerald-400 { color: var(--p-positive) !important; }
+.theme-paragon main .bg-emerald-400,
+.theme-paragon main .bg-emerald-500 {
+  background-color: var(--p-accent) !important;
+  color: #ffffff !important;
+}
+.theme-paragon main .bg-emerald-600 {
+  background-color: var(--p-positive) !important;
+  color: #ffffff !important;
+}
+.theme-paragon main .bg-emerald-400\/15,
+.theme-paragon main .bg-emerald-400\/20,
+.theme-paragon main .bg-emerald-950\/30 {
+  background-color: rgba(15, 107, 78, 0.08) !important;
+  color: var(--p-accent) !important;
+  border: 1px solid var(--p-line) !important;
+}
+
+.theme-paragon main .text-red-100,
+.theme-paragon main .text-red-200,
+.theme-paragon main .text-red-300,
+.theme-paragon main .text-red-400 { color: var(--p-negative) !important; }
+.theme-paragon main .bg-red-600 {
+  background-color: var(--p-negative) !important;
+  color: #ffffff !important;
+}
+.theme-paragon main .bg-red-500\/10 { background-color: rgba(200, 30, 58, 0.06) !important; }
+
+.theme-paragon main .text-indigo-400,
+.theme-paragon main .text-blue-300,
+.theme-paragon main .text-blue-400 { color: var(--p-accent) !important; }
+.theme-paragon main .bg-indigo-600,
+.theme-paragon main .bg-blue-600 {
+  background-color: var(--p-accent) !important;
+  color: #ffffff !important;
+}
+
+.theme-paragon main .text-amber-300,
+.theme-paragon main .text-yellow-300 { color: var(--p-warning) !important; }
+
+.theme-paragon main input,
+.theme-paragon main select,
+.theme-paragon main textarea {
+  background-color: var(--p-surface) !important;
+  border-color: var(--p-line) !important;
+  color: var(--p-text) !important;
+}
+.theme-paragon main input:focus,
+.theme-paragon main select:focus,
+.theme-paragon main textarea:focus {
+  border-color: var(--p-accent) !important;
+  box-shadow: 0 0 0 2px rgba(15, 107, 78, 0.18) !important;
+}
+
+.theme-paragon main .rounded-sm,
+.theme-paragon main .rounded,
+.theme-paragon main .rounded-md,
+.theme-paragon main .rounded-lg,
+.theme-paragon main .rounded-xl,
+.theme-paragon main .rounded-2xl { border-radius: 4px !important; }
+
+.theme-paragon main .shadow-sm,
+.theme-paragon main .shadow,
+.theme-paragon main .shadow-md,
+.theme-paragon main .shadow-lg,
+.theme-paragon main .shadow-xl,
+.theme-paragon main .shadow-2xl,
+.theme-paragon main .shadow-panel,
+.theme-paragon main .shadow-soft {
+  box-shadow: 0 1px 2px rgba(20, 35, 28, 0.05), 0 10px 24px rgba(20, 35, 28, 0.05) !important;
+}
+
+.theme-paragon aside .bg-emerald-400 {
+  background-color: var(--p-accent) !important;
+  color: #ffffff !important;
+}
+.theme-paragon aside .text-emerald-300,
+.theme-paragon aside .text-emerald-200 { color: var(--p-accent) !important; }
+.theme-paragon aside .bg-white\/10 {
+  background-color: transparent !important;
+  box-shadow: inset 3px 0 0 var(--p-accent);
+  color: var(--p-accent) !important;
+}
+
+.theme-paragon main .tabular-nums,
+.theme-paragon main td,
+.theme-paragon main .apos-kpi-value,
+.theme-paragon main .text-2xl,
+.theme-paragon main .text-3xl,
+.theme-paragon main .text-4xl,
+.theme-paragon main .text-5xl {
+  font-feature-settings: 'tnum' 1;
+}
+.theme-paragon main .apos-kpi-value,
+.theme-paragon main .text-3xl,
+.theme-paragon main .text-4xl,
+.theme-paragon main .text-5xl {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+}
+
+.theme-paragon main tbody tr:hover,
+.theme-paragon main .hover\:bg-blue-50\/50:hover,
+.theme-paragon main .hover\:bg-slate-900\/60:hover,
+.theme-paragon main .hover\:bg-white:hover,
+.theme-paragon main .hover\:bg-slate-100:hover,
+.theme-paragon main .hover\:bg-slate-50:hover {
+  background-color: rgba(15, 107, 78, 0.06) !important;
+}
+
+.theme-paragon main .bg-white,
+.theme-paragon main .bg-white\/90,
+.theme-paragon main .bg-white\/80,
+.theme-paragon main .bg-white\/70,
+.theme-paragon main .bg-finance-panel { background-color: var(--p-surface) !important; }
+
+.theme-paragon main .bg-slate-50,
+.theme-paragon main .bg-slate-50\/70,
+.theme-paragon main .bg-slate-50\/80,
+.theme-paragon main .bg-slate-50\/60,
+.theme-paragon main .bg-slate-100,
+.theme-paragon main .bg-slate-100\/70,
+.theme-paragon main .bg-slate-200,
+.theme-paragon main .bg-finance-canvas { background-color: var(--p-surface-2) !important; }
+
+.theme-paragon main .bg-blue-50,
+.theme-paragon main .bg-blue-50\/60,
+.theme-paragon main .bg-blue-100,
+.theme-paragon main .bg-sky-50,
+.theme-paragon main .bg-sky-100,
+.theme-paragon main .bg-indigo-50,
+.theme-paragon main .bg-indigo-100 {
+  background-color: rgba(15, 107, 78, 0.08) !important;
+}
+
+.theme-paragon main .border-finance-line { border-color: var(--p-line) !important; }
+
+.theme-paragon main .text-slate-700,
+.theme-paragon main .text-slate-800,
+.theme-paragon main .text-slate-900,
+.theme-paragon main .text-slate-950,
+.theme-paragon main .text-finance-text { color: var(--p-text) !important; }
+
+.theme-paragon .apos-panel,
+.theme-paragon .apos-kpi,
+.theme-paragon .apos-table-wrap,
+.theme-paragon .apos-button {
+  background-color: var(--p-surface) !important;
+  border-color: var(--p-line) !important;
+  color: var(--p-text);
+}
+.theme-paragon .apos-panel-muted {
+  background-color: var(--p-surface-2) !important;
+  border-color: var(--p-line) !important;
+}
+.theme-paragon .apos-button { color: var(--p-text-muted) !important; }
+.theme-paragon .apos-button:hover {
+  background-color: var(--p-surface-2) !important;
+  border-color: var(--p-accent) !important;
+  color: var(--p-text) !important;
+}
+.theme-paragon .apos-button-primary {
+  background-color: var(--p-accent) !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+}
+.theme-paragon .apos-control {
+  background-color: var(--p-surface) !important;
+  border-color: var(--p-line) !important;
+  color: var(--p-text) !important;
+}
+.theme-paragon .apos-control:focus {
+  border-color: var(--p-accent) !important;
+  box-shadow: 0 0 0 2px rgba(15, 107, 78, 0.2) !important;
+}
+.theme-paragon .apos-table { color: var(--p-text); }
+.theme-paragon .apos-table thead {
+  background-color: var(--p-surface-2) !important;
+  color: var(--p-text-muted) !important;
+}
+.theme-paragon .apos-table th {
+  border-color: var(--p-line) !important;
+  color: var(--p-text-muted) !important;
+}
+.theme-paragon .apos-table td { border-color: var(--p-line) !important; }
+.theme-paragon .apos-table tbody tr.apos-row-even { background-color: var(--p-surface) !important; }
+.theme-paragon .apos-table tbody tr.apos-row-odd { background-color: var(--p-surface-2) !important; }
+.theme-paragon .apos-table tbody tr.apos-row-warning {
+  background-color: rgba(184, 121, 26, 0.06) !important;
+  box-shadow: inset 3px 0 0 rgba(184, 121, 26, 0.5);
+}
+.theme-paragon .apos-table tbody tr.apos-row-negative {
+  background-color: rgba(200, 30, 58, 0.06) !important;
+  box-shadow: inset 3px 0 0 rgba(200, 30, 58, 0.5);
+}
+.theme-paragon .apos-table tbody tr:hover { background-color: rgba(15, 107, 78, 0.06) !important; }
+.theme-paragon .apos-table tbody tr.apos-row-negative:hover { background-color: rgba(200, 30, 58, 0.1) !important; }
+
+.theme-paragon .bg-finance-canvas { background-color: var(--p-bg) !important; }
+
+.theme-paragon main .animate-pulse.bg-slate-200,
+.theme-paragon main .bg-slate-200\/60 { background-color: var(--p-surface-2) !important; }
+
+.theme-paragon main .apos-code-shell,
+.theme-paragon main .apos-code-block,
+.theme-paragon main .bg-slate-950\/70,
+.theme-paragon main .bg-slate-950\/80 {
+  background-color: #0f172a !important;
+  border-color: #344255 !important;
+  color: #f8fafc !important;
+}
+.theme-paragon main .apos-code-shell code,
+.theme-paragon main .apos-code-block,
+.theme-paragon main .apos-code-row code,
+.theme-paragon main pre.text-slate-100 { color: #f8fafc !important; }
+.theme-paragon main .apos-copy-button,
+.theme-paragon main button.text-slate-200 { color: #f8fafc !important; }
+
+/* Public pages (landing, login, register, public security) live outside the app
+   layout main, so they need the same light-theme recolor rules explicitly. */
+.theme-paragon .min-h-screen.bg-slate-900,
+.theme-paragon .min-h-screen.bg-zinc-950 {
+  background: var(--p-bg) !important;
+  color: var(--p-text) !important;
+}
+.theme-paragon .min-h-screen .bg-slate-950,
+.theme-paragon .min-h-screen .bg-slate-950\/70,
+.theme-paragon .min-h-screen .bg-slate-900,
+.theme-paragon .min-h-screen .bg-slate-900\/60,
+.theme-paragon .min-h-screen .bg-slate-800,
+.theme-paragon .min-h-screen .bg-zinc-950,
+.theme-paragon .min-h-screen .bg-zinc-900,
+.theme-paragon .min-h-screen .bg-zinc-900\/70 {
+  background-color: var(--p-surface) !important;
+}
+.theme-paragon .min-h-screen .border-slate-800,
+.theme-paragon .min-h-screen .border-slate-700,
+.theme-paragon .min-h-screen .border-slate-600,
+.theme-paragon .min-h-screen .border-zinc-800,
+.theme-paragon .min-h-screen .border-zinc-700,
+.theme-paragon .min-h-screen .border-zinc-600 { border-color: var(--p-line) !important; }
+.theme-paragon .min-h-screen .text-white,
+.theme-paragon .min-h-screen .text-slate-100,
+.theme-paragon .min-h-screen .text-slate-200,
+.theme-paragon .min-h-screen .text-slate-300,
+.theme-paragon .min-h-screen .text-zinc-100,
+.theme-paragon .min-h-screen .text-zinc-200,
+.theme-paragon .min-h-screen .text-zinc-300 { color: var(--p-text) !important; }
+.theme-paragon .min-h-screen .text-slate-400,
+.theme-paragon .min-h-screen .text-slate-500,
+.theme-paragon .min-h-screen .text-zinc-400,
+.theme-paragon .min-h-screen .text-zinc-500 { color: var(--p-text-muted) !important; }
+.theme-paragon .min-h-screen input,
+.theme-paragon .min-h-screen select,
+.theme-paragon .min-h-screen textarea {
+  background-color: var(--p-surface) !important;
+  border-color: var(--p-line) !important;
+  color: var(--p-text) !important;
+}
+.theme-paragon .min-h-screen .bg-indigo-600,
+.theme-paragon .min-h-screen .bg-cyan-500 {
+  background-color: var(--p-accent) !important;
+  color: #ffffff !important;
+}
+
+.theme-paragon main .apos-button-primary,
+.theme-paragon main a.bg-indigo-600,
+.theme-paragon main button.bg-indigo-600,
+.theme-paragon main a.bg-orange-600,
+.theme-paragon main button.bg-orange-600,
+.theme-paragon main button.bg-emerald-600,
+.theme-paragon main button.bg-red-600 { color: #ffffff !important; }
+
+.theme-paragon main .bg-indigo-500\/20.text-indigo-100 {
+  background-color: rgba(15, 107, 78, 0.1) !important;
+  border-color: var(--p-accent) !important;
+  color: var(--p-text) !important;
+}
+
+/* ============================================================
+ * Variant F — "Skarbiec"
+ * Financial Vault, made visible: graphite-green near-black,
+ * one cold steel-blue accent, sage/brick semantic deltas.
+ * ============================================================ */
+
+html.theme-skarbiec {
+  --k-bg: #0d1210;
+  --k-surface: #161c19;
+  --k-surface-2: #1c2420;
+  --k-line: rgba(232, 237, 233, 0.08);
+  --k-line-strong: rgba(232, 237, 233, 0.16);
+  --k-text: #e8ede9;
+  --k-text-muted: #8fa199;
+  --k-text-dim: #5f6f65;
+  --k-accent: #5b9dd6;
+  --k-positive: #4fae7c;
+  --k-negative: #d1685a;
+  --k-warning: #c99a4a;
+}
+
+html.theme-skarbiec,
+html.theme-skarbiec body {
+  background: var(--k-bg) !important;
+  color: var(--k-text);
+}
+
+.theme-skarbiec aside.bg-ink-950,
+.theme-skarbiec .bg-ink-950 { background-color: var(--k-bg) !important; }
+.theme-skarbiec header.bg-slate-950\/90 {
+  background-color: rgba(13, 18, 16, 0.92) !important;
+  border-color: var(--k-line) !important;
+}
+
+.theme-skarbiec main {
+  background: var(--k-bg);
+  color: var(--k-text);
+}
+
+.theme-skarbiec main .bg-slate-950,
+.theme-skarbiec main .bg-slate-950\/70,
+.theme-skarbiec main .bg-slate-900,
+.theme-skarbiec main .bg-slate-900\/40,
+.theme-skarbiec main .bg-slate-900\/50,
+.theme-skarbiec main .bg-slate-900\/60,
+.theme-skarbiec main .bg-slate-900\/70,
+.theme-skarbiec main .bg-slate-900\/80 {
+  background-color: var(--k-surface) !important;
+}
+.theme-skarbiec main .bg-slate-800,
+.theme-skarbiec main .bg-slate-800\/40,
+.theme-skarbiec main .bg-slate-800\/50,
+.theme-skarbiec main .bg-slate-800\/60,
+.theme-skarbiec main .bg-slate-800\/70,
+.theme-skarbiec main .bg-slate-800\/80,
+.theme-skarbiec main .bg-slate-700,
+.theme-skarbiec main .bg-slate-700\/50,
+.theme-skarbiec main .bg-slate-700\/60 {
+  background-color: var(--k-surface-2) !important;
+}
+
+.theme-skarbiec main .border-slate-900,
+.theme-skarbiec main .border-slate-800,
+.theme-skarbiec main .border-slate-800\/40,
+.theme-skarbiec main .border-slate-800\/50,
+.theme-skarbiec main .border-slate-800\/60,
+.theme-skarbiec main .border-slate-700,
+.theme-skarbiec main .border-slate-700\/40,
+.theme-skarbiec main .border-slate-700\/50,
+.theme-skarbiec main .border-slate-700\/60,
+.theme-skarbiec main .border-slate-600 { border-color: var(--k-line-strong) !important; }
+
+.theme-skarbiec main .text-white,
+.theme-skarbiec main .text-slate-100,
+.theme-skarbiec main .text-slate-200 { color: var(--k-text) !important; }
+.theme-skarbiec main .text-slate-300 { color: #c3cdc7 !important; }
+.theme-skarbiec main .text-slate-400 { color: var(--k-text-muted) !important; }
+.theme-skarbiec main .text-slate-500,
+.theme-skarbiec main .text-slate-600 { color: var(--k-text-dim) !important; }
+
+.theme-skarbiec main .text-emerald-100,
+.theme-skarbiec main .text-emerald-200,
+.theme-skarbiec main .text-emerald-300,
+.theme-skarbiec main .text-emerald-400 { color: var(--k-positive) !important; }
+.theme-skarbiec main .bg-emerald-400,
+.theme-skarbiec main .bg-emerald-500 {
+  background-color: var(--k-accent) !important;
+  color: var(--k-bg) !important;
+}
+.theme-skarbiec main .bg-emerald-600 {
+  background-color: var(--k-positive) !important;
+  color: var(--k-bg) !important;
+}
+.theme-skarbiec main .bg-emerald-400\/15,
+.theme-skarbiec main .bg-emerald-400\/20 {
+  background-color: rgba(91, 157, 214, 0.14) !important;
+  color: var(--k-accent) !important;
+}
+
+.theme-skarbiec main .text-red-100,
+.theme-skarbiec main .text-red-200,
+.theme-skarbiec main .text-red-300,
+.theme-skarbiec main .text-red-400 { color: var(--k-negative) !important; }
+.theme-skarbiec main .bg-red-600 { background-color: var(--k-negative) !important; }
+.theme-skarbiec main .bg-red-500\/10 { background-color: rgba(209, 104, 90, 0.12) !important; }
+
+.theme-skarbiec main .text-indigo-400,
+.theme-skarbiec main .text-blue-300,
+.theme-skarbiec main .text-blue-400 { color: var(--k-accent) !important; }
+.theme-skarbiec main .bg-indigo-600,
+.theme-skarbiec main .bg-blue-600 {
+  background-color: var(--k-accent) !important;
+  color: var(--k-bg) !important;
+}
+
+.theme-skarbiec main .text-amber-300,
+.theme-skarbiec main .text-yellow-300 { color: var(--k-warning) !important; }
+
+.theme-skarbiec main input,
+.theme-skarbiec main select,
+.theme-skarbiec main textarea {
+  background-color: var(--k-bg) !important;
+  border-color: var(--k-line-strong) !important;
+  color: var(--k-text);
+}
+.theme-skarbiec main input:focus,
+.theme-skarbiec main select:focus,
+.theme-skarbiec main textarea:focus {
+  border-color: var(--k-accent) !important;
+  box-shadow: 0 0 0 1px var(--k-accent) !important;
+}
+
+.theme-skarbiec main .rounded-lg,
+.theme-skarbiec main .rounded-xl,
+.theme-skarbiec main .rounded-2xl,
+.theme-skarbiec main .rounded-md { border-radius: 6px !important; }
+.theme-skarbiec main .shadow-sm,
+.theme-skarbiec main .shadow,
+.theme-skarbiec main .shadow-md,
+.theme-skarbiec main .shadow-lg,
+.theme-skarbiec main .shadow-xl,
+.theme-skarbiec main .shadow-2xl,
+.theme-skarbiec main .shadow-panel,
+.theme-skarbiec main .shadow-soft { box-shadow: none !important; }
+
+.theme-skarbiec aside .bg-emerald-400 {
+  background-color: var(--k-accent) !important;
+  color: var(--k-bg) !important;
+}
+.theme-skarbiec aside .text-emerald-300,
+.theme-skarbiec aside .text-emerald-200 { color: var(--k-accent) !important; }
+
+.theme-skarbiec main .tabular-nums,
+.theme-skarbiec main td,
+.theme-skarbiec main .apos-kpi-value,
+.theme-skarbiec main .text-2xl,
+.theme-skarbiec main .text-3xl {
+  font-feature-settings: 'tnum' 1;
+}
+.theme-skarbiec main td,
+.theme-skarbiec main .font-mono,
+.theme-skarbiec main .apos-kpi-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.theme-skarbiec main tbody tr:hover,
+.theme-skarbiec main .hover\:bg-blue-50\/50:hover,
+.theme-skarbiec main .hover\:bg-slate-900\/60:hover,
+.theme-skarbiec main .hover\:bg-white:hover,
+.theme-skarbiec main .hover\:bg-slate-100:hover,
+.theme-skarbiec main .hover\:bg-slate-50:hover {
+  background-color: rgba(91, 157, 214, 0.08) !important;
+}
+
+.theme-skarbiec aside .bg-white\/10 {
+  background-color: transparent !important;
+  box-shadow: inset 3px 0 0 var(--k-accent);
+  color: var(--k-accent) !important;
+}
+
+.theme-skarbiec main .bg-white,
+.theme-skarbiec main .bg-white\/90,
+.theme-skarbiec main .bg-white\/80,
+.theme-skarbiec main .bg-white\/70,
+.theme-skarbiec main .bg-finance-panel { background-color: var(--k-surface) !important; }
+
+.theme-skarbiec main .bg-slate-50,
+.theme-skarbiec main .bg-slate-50\/70,
+.theme-skarbiec main .bg-slate-50\/80,
+.theme-skarbiec main .bg-slate-50\/60,
+.theme-skarbiec main .bg-slate-100,
+.theme-skarbiec main .bg-slate-100\/70,
+.theme-skarbiec main .bg-slate-200,
+.theme-skarbiec main .bg-finance-canvas { background-color: var(--k-surface-2) !important; }
+
+.theme-skarbiec main .bg-blue-50,
+.theme-skarbiec main .bg-blue-50\/60,
+.theme-skarbiec main .bg-blue-100,
+.theme-skarbiec main .bg-sky-50,
+.theme-skarbiec main .bg-sky-100,
+.theme-skarbiec main .bg-indigo-50,
+.theme-skarbiec main .bg-indigo-100 {
+  background-color: rgba(91, 157, 214, 0.1) !important;
+}
+
+.theme-skarbiec main .border-slate-100,
+.theme-skarbiec main .border-slate-200,
+.theme-skarbiec main .border-slate-300,
+.theme-skarbiec main .border-slate-400,
+.theme-skarbiec main .border-finance-line { border-color: var(--k-line-strong) !important; }
+
+.theme-skarbiec main .text-slate-700,
+.theme-skarbiec main .text-slate-800,
+.theme-skarbiec main .text-slate-900,
+.theme-skarbiec main .text-slate-950,
+.theme-skarbiec main .text-finance-text { color: var(--k-text) !important; }
+
+.theme-skarbiec .apos-panel,
+.theme-skarbiec .apos-kpi,
+.theme-skarbiec .apos-table-wrap,
+.theme-skarbiec .apos-button {
+  background-color: var(--k-surface) !important;
+  border-color: var(--k-line-strong) !important;
+  box-shadow: none !important;
+  border-radius: 6px !important;
+  color: var(--k-text);
+}
+.theme-skarbiec .apos-panel-muted {
+  background-color: var(--k-surface-2) !important;
+  border-color: var(--k-line-strong) !important;
+}
+.theme-skarbiec .apos-button { color: var(--k-text-muted) !important; }
+.theme-skarbiec .apos-button:hover {
+  background-color: var(--k-surface-2) !important;
+  border-color: var(--k-accent) !important;
+  color: var(--k-text) !important;
+}
+.theme-skarbiec .apos-button-primary {
+  background-color: var(--k-accent) !important;
+  color: var(--k-bg) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+.theme-skarbiec .apos-control {
+  background-color: var(--k-bg) !important;
+  border-color: var(--k-line-strong) !important;
+  color: var(--k-text) !important;
+  border-radius: 6px !important;
+}
+.theme-skarbiec .apos-control:focus {
+  border-color: var(--k-accent) !important;
+  box-shadow: 0 0 0 2px rgba(91, 157, 214, 0.25) !important;
+}
+.theme-skarbiec .apos-table { color: var(--k-text); }
+.theme-skarbiec .apos-table thead {
+  background-color: var(--k-surface-2) !important;
+  color: var(--k-text-muted) !important;
+}
+.theme-skarbiec .apos-table th {
+  border-color: var(--k-line-strong) !important;
+  color: var(--k-text-muted) !important;
+}
+.theme-skarbiec .apos-table td { border-color: var(--k-line) !important; }
+.theme-skarbiec .apos-table tbody tr.apos-row-even { background-color: var(--k-surface) !important; }
+.theme-skarbiec .apos-table tbody tr.apos-row-odd { background-color: var(--k-surface-2) !important; }
+.theme-skarbiec .apos-table tbody tr.apos-row-warning {
+  background-color: rgba(201, 154, 74, 0.06) !important;
+  box-shadow: inset 3px 0 0 rgba(201, 154, 74, 0.5);
+}
+.theme-skarbiec .apos-table tbody tr.apos-row-negative {
+  background-color: rgba(209, 104, 90, 0.08) !important;
+  box-shadow: inset 3px 0 0 rgba(209, 104, 90, 0.55);
+}
+.theme-skarbiec .apos-table tbody tr:hover { background-color: rgba(91, 157, 214, 0.08) !important; }
+.theme-skarbiec .apos-table tbody tr.apos-row-negative:hover { background-color: rgba(209, 104, 90, 0.12) !important; }
+
+.theme-skarbiec .bg-finance-canvas { background-color: var(--k-bg) !important; }
+.theme-skarbiec.dark { color-scheme: dark; }
+
+.theme-skarbiec main .animate-pulse.bg-slate-200,
+.theme-skarbiec main .bg-slate-200\/60 { background-color: var(--k-surface-2) !important; }
+
+.theme-skarbiec main .apos-code-shell,
+.theme-skarbiec main .apos-code-block,
+.theme-skarbiec main .bg-slate-950\/70,
+.theme-skarbiec main .bg-slate-950\/80 {
+  background-color: #0a0e0c !important;
+  border-color: var(--k-line-strong) !important;
+  color: #eef3ef !important;
+}
+.theme-skarbiec main .apos-code-shell code,
+.theme-skarbiec main .apos-code-block,
+.theme-skarbiec main .apos-code-row code,
+.theme-skarbiec main pre.text-slate-100 { color: #eef3ef !important; }
+.theme-skarbiec main .apos-copy-button,
+.theme-skarbiec main button.text-slate-200 { color: #eef3ef !important; }
+
+/* Public pages already ship dark by default; recolor to the vault palette
+   instead of the generic slate so the identity is consistent site-wide. */
+.theme-skarbiec .min-h-screen.bg-slate-900,
+.theme-skarbiec .min-h-screen.bg-zinc-950 {
+  background: var(--k-bg) !important;
+  color: var(--k-text) !important;
+}
+.theme-skarbiec .min-h-screen .bg-slate-950,
+.theme-skarbiec .min-h-screen .bg-slate-950\/70,
+.theme-skarbiec .min-h-screen .bg-slate-900,
+.theme-skarbiec .min-h-screen .bg-slate-900\/60,
+.theme-skarbiec .min-h-screen .bg-slate-800,
+.theme-skarbiec .min-h-screen .bg-zinc-950,
+.theme-skarbiec .min-h-screen .bg-zinc-900,
+.theme-skarbiec .min-h-screen .bg-zinc-900\/70 {
+  background-color: var(--k-surface) !important;
+}
+.theme-skarbiec .min-h-screen .border-slate-800,
+.theme-skarbiec .min-h-screen .border-slate-700,
+.theme-skarbiec .min-h-screen .border-slate-600,
+.theme-skarbiec .min-h-screen .border-zinc-800,
+.theme-skarbiec .min-h-screen .border-zinc-700,
+.theme-skarbiec .min-h-screen .border-zinc-600 { border-color: var(--k-line-strong) !important; }
+.theme-skarbiec .min-h-screen .text-white,
+.theme-skarbiec .min-h-screen .text-slate-100,
+.theme-skarbiec .min-h-screen .text-slate-200,
+.theme-skarbiec .min-h-screen .text-slate-300,
+.theme-skarbiec .min-h-screen .text-zinc-100,
+.theme-skarbiec .min-h-screen .text-zinc-200,
+.theme-skarbiec .min-h-screen .text-zinc-300 { color: var(--k-text) !important; }
+.theme-skarbiec .min-h-screen .text-slate-400,
+.theme-skarbiec .min-h-screen .text-slate-500,
+.theme-skarbiec .min-h-screen .text-zinc-400,
+.theme-skarbiec .min-h-screen .text-zinc-500 { color: var(--k-text-muted) !important; }
+.theme-skarbiec .min-h-screen input,
+.theme-skarbiec .min-h-screen select,
+.theme-skarbiec .min-h-screen textarea {
+  background-color: var(--k-surface) !important;
+  border-color: var(--k-line-strong) !important;
+  color: var(--k-text) !important;
+}
+.theme-skarbiec .min-h-screen .bg-indigo-600,
+.theme-skarbiec .min-h-screen .bg-cyan-500 {
+  background-color: var(--k-accent) !important;
+  color: var(--k-bg) !important;
+}

@@ -1,0 +1,16 @@
+.env
+docker-compose.override.yml
+.git-real/
+backend/.env
+frontend/.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/
+dist/
+*.tsbuildinfo
+.fv_password.md
+backend/apk_dist/*.apk
+backend/apk_dist/manifest.json

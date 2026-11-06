@@ -1,0 +1,68 @@
+from datetime import date, datetime
+from decimal import Decimal
+
+from sqlalchemy import Date, DateTime, ForeignKey, Index, Numeric, String, Text, UniqueConstraint, func
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.core.database import Base
+
+
+class TenantBillingProfile(Base):
+    __tablename__ = "tenant_billing_profiles"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", name="uq_tenant_billing_profiles_tenant"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id", ondelete="RESTRICT"), nullable=False, index=True)
+    company_name: Mapped[str | None] = mapped_column(String(255))
+    nip: Mapped[str | None] = mapped_column(String(32), index=True)
+    regon: Mapped[str | None] = mapped_column(String(32))
+    krs: Mapped[str | None] = mapped_column(String(32))
+    street: Mapped[str | None] = mapped_column(String(255))
+    postal_code: Mapped[str | None] = mapped_column(String(16))
+    city: Mapped[str | None] = mapped_column(String(128))
+    country: Mapped[str] = mapped_column(String(2), default="PL", nullable=False)
+    invoice_email: Mapped[str | None] = mapped_column(String(320))
+    vat_status: Mapped[str | None] = mapped_column(String(64))
+    fetched_from_vat_api_at: Mapped[datetime | None] = mapped_column(DateTime)
+    trial_end_email_sent_at: Mapped[datetime | None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+class TenantInvoice(Base):
+    __tablename__ = "tenant_invoices"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "number", name="uq_tenant_invoices_tenant_number"),
+        Index("ix_tenant_invoices_tenant_month", "tenant_id", "period_month"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id", ondelete="RESTRICT"), nullable=False, index=True)
+    number: Mapped[str] = mapped_column(String(64), nullable=False)
+    period_month: Mapped[date] = mapped_column(Date, nullable=False)
+    issue_date: Mapped[date | None] = mapped_column(Date)
+    due_date: Mapped[date | None] = mapped_column(Date)
+    amount_net: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=0)
+    amount_gross: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=0)
+    currency: Mapped[str] = mapped_column(String(3), default="PLN", nullable=False)
+    status: Mapped[str] = mapped_column(String(32), default="draft", nullable=False)
+    pdf_url: Mapped[str | None] = mapped_column(String(1024))
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class TenantPaidPlanAcceptance(Base):
+    __tablename__ = "tenant_paid_plan_acceptances"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "terms_version", name="uq_tenant_paid_plan_acceptances_tenant_version"),
+        Index("ix_tenant_paid_plan_acceptances_tenant", "tenant_id"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id", ondelete="RESTRICT"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True)
+    terms_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    accepted_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+    ip_address: Mapped[str | None] = mapped_column(String(64))
+    user_agent: Mapped[str | None] = mapped_column(Text)

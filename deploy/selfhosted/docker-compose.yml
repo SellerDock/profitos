@@ -1,0 +1,79 @@
+services:
+  apos-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Ustaw POSTGRES_USER w .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Ustaw POSTGRES_PASSWORD w .env}
+      POSTGRES_DB: ${POSTGRES_DB:?Ustaw POSTGRES_DB w .env}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks: [profitos]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  apos-backend:
+    build: ../../backend
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    env_file: .env
+    networks: [profitos]
+    depends_on:
+      apos-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  apos-scheduler:
+    build: ../../backend
+    command: ["python", "-m", "app.run_scheduler"]
+    env_file: .env
+    networks: [profitos]
+    depends_on:
+      apos-backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  apos-frontend:
+    build:
+      context: ../../frontend
+      args:
+        VITE_API_BASE_URL: /api/v1
+    networks: [profitos]
+    depends_on:
+      apos-backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      PROFITOS_DOMAIN: ${PROFITOS_DOMAIN:?Ustaw PROFITOS_DOMAIN w .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [profitos]
+    depends_on:
+      - apos-frontend
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  profitos:
+    driver: bridge
