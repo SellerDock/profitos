@@ -1,3 +1,7 @@
+export const SOURCE_REPO_URL = 'https://github.com/SellerDock/profitos'
+export const SELFHOST_GUIDE_URL = `${SOURCE_REPO_URL}/blob/main/deploy/selfhosted/README.md`
+export const ISSUES_URL = `${SOURCE_REPO_URL}/issues`
+
 export interface BrandConfig {
   product_name: string
   support_email: string | null

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle, CheckCircle2, CreditCard, FileText, Lock } from 'lucide-react'
-import { billingApi } from '../api/client'
+import { billingApi, type PricingTier } from '../api/client'
 
 function monthLabel(iso: string): string {
   return new Date(iso).toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' })
@@ -10,6 +10,11 @@ function monthLabel(iso: string): string {
 
 function pln(value: number): string {
   return value.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN', maximumFractionDigits: 0 })
+}
+
+function tierPrice(tier: PricingTier): string {
+  if (tier.is_custom) return 'Wycena indywidualna – kontakt'
+  return `${pln(tier.price_pln)}${tier.billing_period === 'year' ? ' netto / rok' : ''}`
 }
 
 export default function Subscription() {
@@ -52,7 +57,7 @@ export default function Subscription() {
                 {data.trial_active
                   ? `Trial trwa do ${new Date(data.trial_ends_at).toLocaleDateString('pl-PL')}.`
                   : data.paid_plan_accepted
-                    ? `Aktualny próg: ${pln(data.current_tier.price_pln)} / miesiąc.`
+                    ? `Aktualny próg: ${tierPrice(data.current_tier)}.`
                     : 'Zaakceptuj regulamin, żeby kontynuować synchronizację po trialu.'}
               </p>
             </div>
@@ -132,14 +137,13 @@ export default function Subscription() {
                   }`}
                 >
                   <p className="text-sm font-semibold text-slate-950">{tier.label}</p>
-                  <p className="mt-3 text-2xl font-bold text-slate-950">{pln(tier.price_pln)}</p>
-                  <p className="mt-1 text-xs text-slate-500">miesięcznie</p>
+                  <p className="mt-3 text-2xl font-bold text-slate-950">{tierPrice(tier)}</p>
                 </div>
               ))}
             </div>
             <p className="mt-4 flex items-center gap-2 text-xs text-slate-500">
               <Lock size={13} />
-              Po okresie próbnym rozliczenie będzie liczone według liczby zamówień z poprzedniego miesiąca.
+              Po okresie próbnym pakiet roczny jest ustalany według liczby zamówień z poprzedniego miesiąca. Do cen netto doliczany jest VAT.
             </p>
           </section>
 
@@ -173,7 +177,7 @@ export default function Subscription() {
                           {invoice.pdf_url ? (
                             <a className="apos-button" href={invoice.pdf_url} target="_blank" rel="noopener">Pobierz</a>
                           ) : (
-                            <span className="text-slate-400">—</span>
+                            <span className="text-slate-400">–</span>
                           )}
                         </td>
                       </tr>

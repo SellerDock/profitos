@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ChevronDown,
   DatabaseZap,
+  Github,
   Layers,
   Lock,
   Megaphone,
@@ -17,7 +18,7 @@ import {
 import { authApi } from '../api/client'
 import { CRYPTO_REPO_URL } from '../crypto/CRYPTO_PIN'
 import { PublicThemeToggle } from '../components/PublicThemeToggle'
-import { productName, supportEmail, appUrl } from '../config/brand'
+import { productName, supportEmail, appUrl, SOURCE_REPO_URL, SELFHOST_GUIDE_URL, ISSUES_URL } from '../config/brand'
 import { BrandLogo } from '../components/BrandLogo'
 import { useTheme } from '../context/ThemeContext'
 import { IS_APP } from '../utils/isApp'
@@ -45,11 +46,11 @@ const featureCards = [
 ]
 
 const pricing = [
-  ['Do 200 zamówień', '0 zł'],
-  ['Do 500 zamówień', '19 zł'],
-  ['Do 1000 zamówień', '49 zł'],
-  ['Do 5000 zamówień', '99 zł'],
-  ['Do 10000 zamówień', '149 zł'],
+  ['Do 200 zamówień miesięcznie', '0 zł', 'za darmo'],
+  ['Do 1000 zamówień miesięcznie', '99 zł', 'rocznie netto'],
+  ['Do 5000 zamówień miesięcznie', '299 zł', 'rocznie netto'],
+  ['Do 25 000 zamówień miesięcznie', '499 zł', 'rocznie netto'],
+  ['Powyżej 25 000 zamówień miesięcznie', 'Indywidualnie', 'kontakt'],
 ]
 
 const benefits = [
@@ -103,7 +104,7 @@ const steps = [
 const faqItems = [
   {
     q: 'Czym jest ProfitOS.pl?',
-    a: 'To narzędzie do analizy rentowności sprzedaży na Allegro. Łączy zamówienia, rozliczenia, reklamy i koszty zakupu w jeden rachunek zysków i strat — per SKU, konto i okres.',
+    a: 'To narzędzie do analizy rentowności sprzedaży na Allegro. Łączy zamówienia, rozliczenia, reklamy i koszty zakupu w jeden rachunek zysków i strat – per SKU, konto i okres.',
   },
   {
     q: 'Czy widzicie moje koszty zakupu i marże?',
@@ -122,8 +123,16 @@ const faqItems = [
     a: 'Tak. Każde konto ma 30 dni za darmo, bez zobowiązań. Do 200 zamówień miesięcznie ProfitOS pozostaje darmowy również później.',
   },
   {
+    q: 'Czy ProfitOS jest darmowy?',
+    a: 'Kod ProfitOS jest open source na licencji AGPL-3.0, a instalacja na własnym serwerze jest bez opłat. Hosting na profitos.pl jest dostępny według cennika, który obejmuje także darmowy próg.',
+  },
+  {
+    q: 'Za co płacę, skoro kod jest otwarty?',
+    a: 'Opłata za usługę na profitos.pl obejmuje hosting, aktualizacje, kopie zapasowe, wsparcie i utrzymanie integracji z Allegro.',
+  },
+  {
     q: 'Jak liczycie cenę abonamentu?',
-    a: 'Cena zależy wyłącznie od liczby zamówień w miesiącu — nie od liczby kont ani funkcji. Stawki w cenniku są kwotami netto, do faktury doliczamy VAT zgodnie z przepisami.',
+    a: 'Pakiet roczny wybierasz według liczby zamówień w miesiącu, niezależnie od liczby kont i funkcji. Do 200 zamówień miesięcznie korzystasz za darmo, a powyżej 25 000 obowiązuje wycena indywidualna. Ceny są netto, do faktury doliczamy VAT zgodnie z przepisami.',
   },
 ]
 
@@ -221,8 +230,8 @@ export default function Landing() {
         </div>
       </header>
 
-      <Section className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <div>
+      <Section className="grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-center">
+        <div className="min-w-0">
           <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-emerald-300">
             Wynik Allegro z prywatnym sejfem kosztów
           </p>
@@ -232,11 +241,19 @@ export default function Landing() {
           <p className={`mt-6 max-w-2xl text-lg leading-8 ${mutedClass}`}>
             {productName()} analizuje prowizje, reklamy, zwroty i koszty zakupu. Koszty zakupu szyfrujemy
             w Twojej przeglądarce, zanim opuszczą komputer. Operator nie widzi Twoich marż.
+            Open source (AGPL-3.0).
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/register" className="rounded bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-500">
               Rozpocznij 30 dni za darmo
             </Link>
+            <a href={SOURCE_REPO_URL} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-2 rounded border px-5 py-3 text-sm font-semibold ${
+              isDark
+                ? 'border-slate-600 text-slate-100 hover:border-slate-400'
+                : 'border-slate-300 bg-white text-slate-950 hover:border-slate-500'
+            }`}>
+              <Github size={18} aria-hidden="true" /> Kod na GitHubie
+            </a>
             <Link to="/security" className={`rounded border px-5 py-3 text-sm font-semibold ${
               isDark
                 ? 'border-slate-600 text-slate-100 hover:border-slate-400'
@@ -351,17 +368,37 @@ export default function Landing() {
       </Section>
 
       <Section>
+        <h2 className={`mb-8 text-2xl font-bold ${headingClass}`}>Open source</h2>
+        <div className="grid gap-5 md:grid-cols-3">
+          <article className={`rounded-lg border p-5 shadow-sm ${panelClass}`}>
+            <h3 className={`mb-2 text-base font-semibold ${headingClass}`}>Kod otwarty</h3>
+            <p className={`text-sm leading-6 ${mutedClass}`}>Cały kod aplikacji jest publiczny na GitHubie. Każdy może sprawdzić, jak liczony jest zysk i jak szyfrowane są koszty.</p>
+          </article>
+          <article className={`rounded-lg border p-5 shadow-sm ${panelClass}`}>
+            <h3 className={`mb-2 text-base font-semibold ${headingClass}`}>Zainstaluj u siebie</h3>
+            <p className={`text-sm leading-6 ${mutedClass}`}>Darmowa instalacja na własnym serwerze z użyciem Dockera, dla jednej firmy.</p>
+            <a href={SELFHOST_GUIDE_URL} target="_blank" rel="noopener noreferrer" className={`mt-3 inline-block text-sm underline ${mutedClass}`}>Instrukcja instalacji</a>
+          </article>
+          <article className={`rounded-lg border p-5 shadow-sm ${panelClass}`}>
+            <h3 className={`mb-2 text-base font-semibold ${headingClass}`}>Albo korzystaj z hostingu</h3>
+            <p className={`text-sm leading-6 ${mutedClass}`}>profitos.pl to gotowa usługa oparta na tym samym kodzie: aktualizacje, kopie zapasowe i wsparcie, bez własnego serwera.</p>
+          </article>
+        </div>
+        <a href={ISSUES_URL} target="_blank" rel="noopener noreferrer" className={`mt-5 inline-block text-sm underline ${mutedClass}`}>Zgłoś pomysł lub dodaj kanał sprzedaży</a>
+      </Section>
+
+      <Section>
         <div className={`rounded-lg border p-6 shadow-sm ${panelClass}`}>
           <h2 className={`mb-2 text-2xl font-bold ${headingClass}`}>Cennik</h2>
           <p className={`mb-6 text-sm leading-6 ${mutedClass}`}>
-            30 dni za darmo dla każdego konta. Później cena zależy wyłącznie od liczby zamówień w miesiącu.
+            30 dni za darmo dla każdego konta. Potem wybierasz pakiet roczny według liczby zamówień w miesiącu.
           </p>
           <div className="grid gap-3 md:grid-cols-5">
-            {pricing.map(([label, price]) => (
-              <div key={label} className={`rounded border p-4 ${innerPanelClass}`}>
+            {pricing.map(([label, price, note]) => (
+              <div key={label} className={`min-w-0 rounded border p-4 ${innerPanelClass}`}>
                 <p className={`text-sm font-semibold ${headingClass}`}>{label}</p>
-                <p className="mt-3 text-2xl font-bold text-emerald-300">{price}</p>
-                <p className={`mt-1 text-xs ${softMutedClass}`}>miesięcznie netto</p>
+                <p className={`mt-3 whitespace-nowrap font-bold text-emerald-300 ${price === 'Indywidualnie' ? 'text-xl md:text-base lg:text-xl xl:text-2xl' : 'text-2xl'}`}>{price}</p>
+                <p className={`mt-1 break-words text-sm ${mutedClass}`}>{note === 'kontakt' ? (supportEmail() ? `kontakt: ${supportEmail()}` : 'skontaktuj się z nami') : note}</p>
               </div>
             ))}
           </div>
@@ -398,6 +435,7 @@ export default function Landing() {
             <Link to="/terms" className={isDark ? 'hover:text-white' : 'hover:text-slate-950'}>Regulamin</Link>
             <Link to="/pobierz" className={isDark ? 'hover:text-white' : 'hover:text-slate-950'}>Aplikacja Android</Link>
             <a href={CRYPTO_REPO_URL} target="_blank" rel="noopener" className={isDark ? 'hover:text-white' : 'hover:text-slate-950'}>GitHub</a>
+            <a href={SOURCE_REPO_URL} target="_blank" rel="noopener noreferrer" className={isDark ? 'hover:text-white' : 'hover:text-slate-950'}>Kod źródłowy (AGPL-3.0)</a>
             {supportEmail() && <a href={`mailto:${supportEmail()}`} className={isDark ? 'hover:text-white' : 'hover:text-slate-950'}>{supportEmail()}</a>}
           </div>
         </div>
@@ -463,7 +501,7 @@ function ProductPreview({ isDark }: { isDark: boolean }) {
   ]
 
   return (
-    <div className={`rounded-lg border p-5 shadow-2xl ${panelClass}`}>
+    <div className={`min-w-0 rounded-lg border p-5 shadow-2xl ${panelClass}`}>
       <div className="mb-4 flex items-center justify-between">
         <div>
           <p className={`text-xs uppercase tracking-wide ${mutedClass}`}>Widok produktu</p>
@@ -488,7 +526,7 @@ function ProductPreview({ isDark }: { isDark: boolean }) {
           </div>
         ))}
       </div>
-      <div className={`mt-4 overflow-hidden rounded border ${isDark ? 'border-slate-700' : 'border-slate-300'}`}>
+      <div className={`mt-4 overflow-x-auto rounded border ${isDark ? 'border-slate-700' : 'border-slate-300'}`}>
         <table className="w-full text-left text-xs">
           <thead className={tableHeadClass}>
             <tr>

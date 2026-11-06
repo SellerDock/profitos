@@ -54,7 +54,7 @@ api.interceptors.response.use(
         await refreshing
         return api(config)
       } catch {
-        // refresh failed — fall through to the redirect below
+        // refresh failed – fall through to the redirect below
       }
     }
 
@@ -338,8 +338,10 @@ export interface AdminTenant {
 export interface AdminPricingTier {
   code: string
   label: string
-  max_orders: number
+  max_orders: number | null
   price_pln: number
+  billing_period: 'year' | 'free'
+  is_custom?: boolean
 }
 
 export interface AdminRevenueSummary {
@@ -440,19 +442,19 @@ export interface PnLSummary {
   ads_cost: string                    // Allegro Ads total
   ads_imported_cost: string           // Allegro Ads IMP
   ads_nsp_adjustment_cost: string     // NSP reconciliation, can be negative
-  smart_shipping_cost: string         // Allegro Delivery codes — buyer paid nothing
+  smart_shipping_cost: string         // Allegro Delivery codes – buyer paid nothing
   smart_forecast_cost: string         // synthetic SMART forecast included in smart_shipping_cost
-  shipping_passthrough_cost: string   // HB4/HLB/… where buyer paid delivery — not in profit
-  foreign_shipping_cost: string       // HB1/HB8 — buyer passthrough, NOT in profit
+  shipping_passthrough_cost: string   // HB4/HLB/… where buyer paid delivery – not in profit
+  foreign_shipping_cost: string       // HB1/HB8 – buyer passthrough, NOT in profit
   featuring_cost: string              // FEA
-  coins_cost: string                  // CPF/RCP — net of coin refunds
+  coins_cost: string                  // CPF/RCP – net of coin refunds
   campaign_commission_cost: string    // BRG
   campaign_bonus: string              // CB2
-  price_adjust_cost: string           // PS1/PSA — positive rebate
+  price_adjust_cost: string           // PS1/PSA – positive rebate
   protect_cost: string                // INS
   local_cost: string                  // ALC/ALS/ALK/ALI/ALL/ALP
   subscription_cost: string           // SB*/SH*/ST*/ILF/ABO
-  refund_commission: string           // REF — positive
+  refund_commission: string           // REF – positive
   fulfillment_base_cost: string       // OFA
   fulfillment_storage_cost: string    // OF1/OFB/OFC/OFD/OFQ/OFR/OFS/OFU/OFZ
   fulfillment_returns_cost: string    // OFE/OFF/OFI
@@ -515,19 +517,19 @@ export interface ProductDetail {
   ads_cost: string                    // Allegro Ads total
   ads_imported_cost: string           // Allegro Ads IMP
   ads_nsp_adjustment_cost: string     // NSP reconciliation, can be negative
-  smart_shipping_cost: string         // Allegro Delivery codes — buyer paid nothing (proportional)
+  smart_shipping_cost: string         // Allegro Delivery codes – buyer paid nothing (proportional)
   smart_forecast_cost: string         // synthetic SMART forecast included above (proportional)
-  shipping_passthrough_cost: string   // HB4/HLB/… where buyer paid delivery — not in profit (proportional)
-  foreign_shipping_cost: string       // HB1/HB8 — buyer passthrough, NOT in profit
+  shipping_passthrough_cost: string   // HB4/HLB/… where buyer paid delivery – not in profit (proportional)
+  foreign_shipping_cost: string       // HB1/HB8 – buyer passthrough, NOT in profit
   featuring_cost: string              // FEA (proportional)
-  coins_cost: string                  // CPF/RCP — net of coin refunds
+  coins_cost: string                  // CPF/RCP – net of coin refunds
   campaign_commission_cost: string    // BRG
   campaign_bonus: string              // CB2
-  price_adjust_cost: string           // PS1/PSA — positive rebate
+  price_adjust_cost: string           // PS1/PSA – positive rebate
   protect_cost: string                // INS (proportional)
   local_cost: string                  // ALC/ALS/ALK/ALI/ALL/ALP (proportional)
   subscription_cost: string           // SB*/SH*/ST*/ILF/ABO (proportional)
-  refund_commission: string           // REF — positive
+  refund_commission: string           // REF – positive
   fulfillment_base_cost: string       // OFA (proportional)
   fulfillment_storage_cost: string    // OF1/OFB/OFC/OFD/OFQ/OFR/OFS/OFU/OFZ (proportional)
   fulfillment_returns_cost: string    // OFE/OFF/OFI (proportional)
@@ -565,8 +567,10 @@ export interface BillingProfile {
 export interface PricingTier {
   code: string
   label: string
-  max_orders: number
+  max_orders: number | null
   price_pln: number
+  billing_period: 'year' | 'free'
+  is_custom?: boolean
 }
 
 export interface TenantInvoice {

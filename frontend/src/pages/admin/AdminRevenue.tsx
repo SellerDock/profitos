@@ -70,7 +70,7 @@ function RevenueCell({
   return (
     <div>
       <div className="font-semibold text-white">{money(amount)}</div>
-      <div className="mt-1 text-xs text-slate-400">{orders} zam. · {tier.label} · {tier.price_pln} zł netto</div>
+      <div className="mt-1 text-xs text-slate-400">{orders} zam. · {tier.label} · {tier.is_custom ? 'wycena indywidualna' : `${tier.price_pln} zł netto${tier.billing_period === 'year' ? ' / rok' : ''}`}</div>
       <div className="text-xs text-slate-500">{billableDays}/{monthDays} dni naliczanych</div>
     </div>
   )

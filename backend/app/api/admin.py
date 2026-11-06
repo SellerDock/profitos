@@ -116,7 +116,7 @@ def _estimate_subscription_amount_net(tenant: Tenant, orders_count: int, month_s
     tier = _tier_for_orders(orders_count)
     billable_days = (month_end - billable_start).days
     amount = (
-        Decimal(tier.price_pln) * Decimal(billable_days) / Decimal(month_days)
+        Decimal(tier.price_pln) / Decimal(12) * Decimal(billable_days) / Decimal(month_days)
     ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     return amount, billable_days, month_days
 

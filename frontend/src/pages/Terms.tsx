@@ -4,7 +4,7 @@ import { PublicThemeToggle } from '../components/PublicThemeToggle'
 import { BrandLogo } from '../components/BrandLogo'
 import { productName, supportEmail } from '../config/brand'
 
-const updatedAt = '13 maja 2026'
+const updatedAt = '6 listopada 2026'
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -34,7 +34,7 @@ export default function Terms() {
             pakiety płatne, rozliczenia, integrację z Allegro, Sejf Finansowy, reklamacje
             oraz odpowiedzialność za dane i decyzje biznesowe.
           </p>
-          <p className="text-sm text-slate-400">Wersja: 2026-05-13 · ostatnia aktualizacja: {updatedAt}</p>
+          <p className="text-sm text-slate-400">Wersja: 2026-11-06 · ostatnia aktualizacja: {updatedAt}</p>
         </section>
 
         <Section title="1. Usługodawca i kontakt">
@@ -151,8 +151,9 @@ export default function Terms() {
           </p>
           <p>
             Opłaty naliczamy dopiero po zakończeniu triala. Cennik jest netto i zależy od liczby zamówień
-            w miesiącu: do 200 zamówień 0 zł, do 500 zamówień 19 zł, do 1000 zamówień 49 zł,
-            do 5000 zamówień 99 zł, do 10000 zamówień 149 zł.
+            w miesiącu: do 200 zamówień 0 zł, do 1000 zamówień 99 zł rocznie,
+            do 5000 zamówień 299 zł rocznie, do 25 000 zamówień 499 zł rocznie,
+            powyżej 25 000 zamówień – wycena indywidualna po kontakcie. Pakiety płatne są opłacane rocznie z góry.
           </p>
           <p>
             Jeżeli po zakończeniu okresu próbnego nie zaakceptujesz pakietu płatnego, możemy

@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -44,16 +44,18 @@ class PaidPlanAcceptancePayload(StrictMutationModel):
 class PricingTier(BaseModel):
     code: str
     label: str
-    max_orders: int
+    max_orders: int | None
     price_pln: int
+    billing_period: Literal["year", "free"]
+    is_custom: bool = False
 
 
 PRICING_TIERS = [
-    PricingTier(code="free_200", label="Do 200 zamówień", max_orders=200, price_pln=0),
-    PricingTier(code="starter_500", label="Do 500 zamówień", max_orders=500, price_pln=19),
-    PricingTier(code="growth_1000", label="Do 1000 zamówień", max_orders=1000, price_pln=49),
-    PricingTier(code="scale_5000", label="Do 5000 zamówień", max_orders=5000, price_pln=99),
-    PricingTier(code="pro_10000", label="Do 10000 zamówień", max_orders=10000, price_pln=149),
+    PricingTier(code="free_200", label="Do 200 zamówień", max_orders=200, price_pln=0, billing_period="free"),
+    PricingTier(code="year_1000", label="Do 1000 zamówień", max_orders=1000, price_pln=99, billing_period="year"),
+    PricingTier(code="year_5000", label="Do 5000 zamówień", max_orders=5000, price_pln=299, billing_period="year"),
+    PricingTier(code="year_25000", label="Do 25 000 zamówień", max_orders=25000, price_pln=499, billing_period="year"),
+    PricingTier(code="custom", label="Powyżej 25 000 zamówień", max_orders=None, price_pln=0, billing_period="year", is_custom=True),
 ]
 
 
@@ -295,9 +297,9 @@ def _orders_count(scope: TenantScope, start: date, end: date) -> int:
 
 def _tier_for_orders(orders: int) -> PricingTier:
     for tier in PRICING_TIERS:
-        if orders <= tier.max_orders:
+        if tier.max_orders is None or orders <= tier.max_orders:
             return tier
-    return PricingTier(code="enterprise", label="Powyżej 10000 zamówień", max_orders=orders, price_pln=149)
+    raise ValueError("No pricing tier covers the order count")
 
 
 def _add_months(value: date, months: int) -> date:
