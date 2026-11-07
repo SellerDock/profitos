@@ -6,6 +6,7 @@ import { accountsApi, appSettingsApi, authApi, billingApi, buildApiUrl, devicesA
 import { useAuth } from '../context/AuthContext'
 import { useDeploymentMode } from '../context/DeploymentContext'
 import { productName } from '../config/brand'
+import { IS_APP } from '../utils/isApp'
 
 function formatExpiry(isoDate: string | null): string {
   if (!isoDate) return ''
@@ -265,13 +266,21 @@ export default function Settings() {
         <h3 className="mb-4 flex items-center gap-2 font-semibold text-slate-950">
           <Link2 size={16} /> Dodaj konto Allegro
         </h3>
-        <p className="mb-4 text-sm leading-6 text-slate-600">
-          Po kliknięciu otworzy się Allegro, gdzie zalogujesz się i potwierdzisz dostęp {productName()} do konta.
-        </p>
-        <a href={buildApiUrl('/allegro/auth')} className="apos-button-primary w-full justify-center">
-          <Link2 size={14} />
-          Przejdź do Allegro
-        </a>
+        {IS_APP ? (
+          <p className="text-sm leading-6 text-slate-600" data-testid="allegro-connect-app-note">
+            Konto Allegro podłączysz w przeglądarce – na komputerze albo w telefonie. Zaloguj się tam do {productName()} i otwórz Ustawienia → Konta Allegro. Ze względów bezpieczeństwa połączenie musi zacząć się i skończyć w tej samej przeglądarce.
+          </p>
+        ) : (
+          <>
+            <p className="mb-4 text-sm leading-6 text-slate-600">
+              Po kliknięciu otworzy się Allegro, gdzie zalogujesz się i potwierdzisz dostęp {productName()} do konta.
+            </p>
+            <a href={buildApiUrl('/allegro/auth')} className="apos-button-primary w-full justify-center">
+              <Link2 size={14} />
+              Przejdź do Allegro
+            </a>
+          </>
+        )}
       </section>}
 
       {activeTab === 'accounts' && <section className="apos-panel p-5">
@@ -310,13 +319,13 @@ export default function Settings() {
                         Nie połączone
                       </span>
                     )}
-                    <a
+                    {!IS_APP && <a
                       href={buildApiUrl(`/allegro/auth/${account.id}`)}
                       className="flex items-center gap-1 text-xs bg-orange-600 hover:bg-orange-500 text-white rounded-full px-3 py-1 transition-colors whitespace-nowrap"
                     >
                       <Link2 size={11} />
                       {account.is_connected ? 'Odnów' : 'Połącz z Allegro'}
-                    </a>
+                    </a>}
                     <button
                       onClick={() => deleteMutation.mutate(account.id)}
                       className="text-slate-500 hover:text-red-400 transition-colors ml-1"

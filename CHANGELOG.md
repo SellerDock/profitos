@@ -2,6 +2,17 @@
 
 Format opiera się na [Keep a Changelog](https://keepachangelog.com/pl/1.1.0/).
 
+## [1.2.0] – 2026-11-07
+
+### Bezpieczeństwo
+
+- Podłączanie konta Allegro (OAuth) jest jednorazową transakcją przypisaną do przeglądarki, która je rozpoczęła (#1). Parametr `state` zawiera losowy kod zapisany także w ciasteczku `apos_oauth` (httponly, SameSite=Lax); w bazie trzymamy tylko jego skrót. Powrót z Allegro bez tego ciasteczka, ponowne użycie tego samego `state` oraz transakcja starsza niż 15 minut są odrzucane. Firma i konto pochodzą z zapisanej transakcji, nie z treści `state`.
+- Nowa tabela `allegro_oauth_transactions` (migracja `20261107_0023`).
+
+### Zmieniono
+
+- W aplikacji Android konto Allegro podłącza się w przeglądarce – aplikacja otwiera Allegro poza WebView, więc powrót nie trafiłby do tej samej sesji. Ustawienia pokazują w aplikacji wyjaśnienie zamiast przycisku.
+
 ## [1.1.2] – 2026-11-07
 
 ### Poprawiono

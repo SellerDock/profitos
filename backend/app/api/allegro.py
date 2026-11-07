@@ -2,17 +2,20 @@ import base64
 import hashlib
 import hmac
 import json
+import secrets
 import time
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
+from sqlalchemy import delete, update
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.tenant import TenantScope, get_scope
-from app.models.account import Account
+from app.models.account import Account, AllegroOAuthTransaction
 from app.services.allegro import AllegroService
 
 router = APIRouter(prefix="/allegro", tags=["allegro"])
@@ -23,12 +26,13 @@ accounts_callback_router = APIRouter(prefix="/accounts/allegro", tags=["allegro"
 def allegro_auth_new(scope: TenantScope = Depends(get_scope)):
     """Redirect the user to Allegro OAuth consent screen for a new account."""
     service = AllegroService(scope.db)
-    state = _encode_oauth_state({"tenant_id": scope.tenant_id})
+    nonce = _start_oauth_transaction(scope, None)
+    state = _encode_oauth_state({"tenant_id": scope.tenant_id, "nonce": nonce})
     try:
         url = service.get_auth_url(settings.ALLEGRO_REDIRECT_URI, state)
     except ValueError as e:
         raise HTTPException(status_code=503, detail=str(e))
-    return RedirectResponse(url)
+    return _redirect_with_oauth_cookie(url, nonce)
 
 
 @router.get("/auth/{account_id}")
@@ -37,16 +41,18 @@ def allegro_auth(account_id: int, scope: TenantScope = Depends(get_scope)):
     account = scope.db.get(Account, account_id)
     scope.assert_owns(account)
     service = AllegroService(scope.db)
-    state = _encode_oauth_state({"tenant_id": scope.tenant_id, "account_id": account_id})
+    nonce = _start_oauth_transaction(scope, account_id)
+    state = _encode_oauth_state({"tenant_id": scope.tenant_id, "account_id": account_id, "nonce": nonce})
     try:
         url = service.get_auth_url(settings.ALLEGRO_REDIRECT_URI, state, account)
     except ValueError as e:
         raise HTTPException(status_code=503, detail=str(e))
-    return RedirectResponse(url)
+    return _redirect_with_oauth_cookie(url, nonce)
 
 
 @router.get("/callback")
 def allegro_callback(
+    request: Request,
     code: str | None = Query(None),
     state: str = Query(...),
     error: str | None = Query(None),
@@ -58,16 +64,21 @@ def allegro_callback(
         params = {"allegro_error": error}
         if error_description:
             params["allegro_error_description"] = error_description
-        return RedirectResponse(f"{settings.APP_BASE_URL}/settings?{urlencode(params)}")
+        return _clear_oauth_cookie(RedirectResponse(f"{settings.APP_BASE_URL}/settings?{urlencode(params)}"))
     if not code:
         raise HTTPException(status_code=400, detail="Allegro authorization failed: missing code")
 
-    service = AllegroService(db)
     try:
         state_data = _decode_oauth_state(state)
-        tenant_id = int(state_data["tenant_id"])
-        account_id = state_data.get("account_id")
-        account = db.get(Account, int(account_id)) if account_id is not None else None
+        transaction = _consume_oauth_transaction(db, state_data, request.cookies.get(OAUTH_COOKIE))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Allegro authorization failed: {e}")
+
+    service = AllegroService(db)
+    try:
+        tenant_id = transaction["tenant_id"]
+        account_id = transaction["account_id"]
+        account = db.get(Account, account_id) if account_id is not None else None
         if account is not None and account.tenant_id != tenant_id:
             raise ValueError("OAuth state account does not belong to tenant")
         token_data = service.exchange_code_for_tokens(code, settings.ALLEGRO_REDIRECT_URI, account)
@@ -76,11 +87,12 @@ def allegro_callback(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Allegro authorization failed: {e}")
 
-    return RedirectResponse(f"{settings.APP_BASE_URL}/settings?connected={connected_account.id}")
+    return _clear_oauth_cookie(RedirectResponse(f"{settings.APP_BASE_URL}/settings?connected={connected_account.id}"))
 
 
 @accounts_callback_router.get("/callback")
 def allegro_accounts_callback(
+    request: Request,
     code: str | None = Query(None),
     state: str = Query(...),
     error: str | None = Query(None),
@@ -88,7 +100,83 @@ def allegro_accounts_callback(
     db: Session = Depends(get_db),
 ):
     """Compatibility callback for Allegro apps configured under /accounts/allegro."""
-    return allegro_callback(code=code, state=state, error=error, error_description=error_description, db=db)
+    return allegro_callback(request=request, code=code, state=state, error=error,
+                            error_description=error_description, db=db)
+
+
+# ── One-time OAuth transactions ────────────────────────────────────────────────
+#
+# The signed state alone does not prove that the callback comes back to the
+# browser that started the flow (login CSRF: an attacker could send a victim
+# the callback URL for the attacker's own Allegro account). Each flow therefore
+# gets a random nonce stored hashed in the DB, put into the signed state and
+# into an httponly cookie. The callback requires the cookie to match the state
+# and consumes the transaction atomically, so it cannot be replayed.
+
+OAUTH_COOKIE = "apos_oauth"
+OAUTH_COOKIE_PATH = "/api/v1"
+OAUTH_TTL = timedelta(minutes=15)
+
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def _hash_nonce(nonce: str) -> str:
+    return hashlib.sha256(nonce.encode()).hexdigest()
+
+
+def _start_oauth_transaction(scope: TenantScope, account_id: int | None) -> str:
+    now = _utcnow()
+    scope.db.execute(delete(AllegroOAuthTransaction).where(
+        AllegroOAuthTransaction.expires_at < now - timedelta(days=1)))
+    nonce = secrets.token_urlsafe(32)
+    user_id = scope.user.id if scope.user is not None and scope.user.id else None
+    scope.db.add(AllegroOAuthTransaction(
+        nonce_hash=_hash_nonce(nonce), tenant_id=scope.tenant_id, user_id=user_id,
+        account_id=account_id, created_at=now, expires_at=now + OAUTH_TTL,
+    ))
+    scope.db.commit()
+    return nonce
+
+
+def _consume_oauth_transaction(db: Session, state_data: dict, cookie_nonce: str | None) -> dict:
+    state_nonce = state_data.get("nonce")
+    if not isinstance(state_nonce, str) or not state_nonce:
+        raise ValueError("OAuth state missing transaction")
+    if not cookie_nonce or not hmac.compare_digest(cookie_nonce, state_nonce):
+        raise ValueError("OAuth transaction does not belong to this browser session")
+    now = _utcnow()
+    row = db.execute(
+        update(AllegroOAuthTransaction)
+        .where(
+            AllegroOAuthTransaction.nonce_hash == _hash_nonce(state_nonce),
+            AllegroOAuthTransaction.used_at.is_(None),
+            AllegroOAuthTransaction.expires_at > now,
+        )
+        .values(used_at=now)
+        .returning(AllegroOAuthTransaction.tenant_id, AllegroOAuthTransaction.account_id)
+    ).first()
+    db.commit()
+    if row is None:
+        raise ValueError("OAuth transaction expired or already used")
+    if int(state_data["tenant_id"]) != row.tenant_id or state_data.get("account_id") != row.account_id:
+        raise ValueError("OAuth state does not match transaction")
+    return {"tenant_id": row.tenant_id, "account_id": row.account_id}
+
+
+def _redirect_with_oauth_cookie(url: str, nonce: str) -> RedirectResponse:
+    response = RedirectResponse(url)
+    # SameSite=Lax: the cookie must be sent on the top-level redirect back from allegro.pl.
+    response.set_cookie(OAUTH_COOKIE, nonce, max_age=int(OAUTH_TTL.total_seconds()), httponly=True,
+                        secure=settings.session_cookie_secure, samesite="lax", path=OAUTH_COOKIE_PATH)
+    return response
+
+
+def _clear_oauth_cookie(response: RedirectResponse) -> RedirectResponse:
+    response.delete_cookie(OAUTH_COOKIE, path=OAUTH_COOKIE_PATH, httponly=True,
+                           secure=settings.session_cookie_secure, samesite="lax")
+    return response
 
 
 def _encode_oauth_state(payload: dict) -> str:

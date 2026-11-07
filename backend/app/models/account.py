@@ -40,3 +40,22 @@ class AllegroAccountClaim(Base):
     account_name: Mapped[str | None] = mapped_column(String(255))
     first_connected_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     last_connected_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+class AllegroOAuthTransaction(Base):
+    """One-time Allegro OAuth transaction bound to the browser that started it.
+
+    Only the SHA-256 of the nonce is stored; the nonce itself travels in the
+    signed OAuth state and in an httponly cookie of the initiating browser.
+    """
+
+    __tablename__ = "allegro_oauth_transactions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nonce_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    account_id: Mapped[int | None] = mapped_column(ForeignKey("accounts.id", ondelete="CASCADE"))
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime)
